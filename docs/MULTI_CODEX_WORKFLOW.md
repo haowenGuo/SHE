@@ -31,6 +31,30 @@ Good parallelization looks like:
 - one Codex owns `Diagnostics + AI context`
 - the integrator Codex merges them through documented acceptance criteria
 
+## 1.1 Coordination Source Of Truth
+
+When multiple worktrees are active, the authoritative shared coordination state
+should live in the `W00` integration workspace on branch `main`.
+
+That means:
+
+- `coordination/TASK_BOARD.md` on `main` is the source of truth
+- `coordination/STATUS_LEDGER.md` on `main` is the source of truth
+- `coordination/INTEGRATION_REPORT.md` on `main` is the source of truth
+
+Workstream branches may contain copies of those files because they share the
+repository history, but those branch-local copies are **not** the shared live
+state.
+
+In practice:
+
+- workstream Codex sessions focus on code inside their owned module boundary
+- they report progress and handoff details back to `W00`
+- `W00` updates the coordination files on `main`
+
+This avoids the false impression that editing a coordination file in one branch
+will automatically update every other active worktree.
+
 ## 2. Roles
 
 Multiple roles may be played by the same human-guided thread, but the role
@@ -121,35 +145,36 @@ This is the minimum shared memory system for multiple Codex sessions.
 
 Every workstream should follow this order:
 
-1. Claim the workstream in the task board.
-2. Create or update the workstream note in `coordination/WORKSTREAMS/`.
-3. Record the start in `STATUS_LEDGER.md`.
-4. Implement only inside the agreed boundary.
-5. Run build/tests relevant to the workstream.
-6. Fill a handoff note using `HANDOFF_TEMPLATE.md`.
-7. Update `INTEGRATION_REPORT.md`.
-8. Mark the task board entry as `ready_for_integration`.
+1. `W00` claims the workstream in the task board on `main`.
+2. `W00` records the start in `STATUS_LEDGER.md` on `main`.
+3. The workstream Codex implements only inside the agreed boundary.
+4. The workstream Codex runs build/tests relevant to the workstream.
+5. The workstream Codex fills a handoff note using `HANDOFF_TEMPLATE.md`.
+6. The workstream Codex reports results back to `W00`.
+7. `W00` updates `INTEGRATION_REPORT.md` if shared interfaces changed.
+8. `W00` marks the task board entry as `ready_for_integration` or `integrated`.
 
 ## 6. Update Cadence
 
-Every active Codex should update shared coordination files at these points:
+Every active Codex should communicate status at these points, while `W00`
+updates the authoritative shared coordination files on `main`:
 
 ### At start
 
-- task board owner/status
-- status ledger start entry
+- workstream ownership confirmation to `W00`
+- status start signal to `W00`
 
 ### When interface changes
 
 - workstream note
-- integration report
-- architecture decision log if the change is structural
+- interface change summary to `W00`
+- architecture decision request if the change is structural
 
 ### At handoff
 
 - handoff file
-- task board status
-- status ledger result entry
+- result summary to `W00`
+- next-step recommendation to `W00`
 
 ## 7. Conflict Avoidance Rules
 

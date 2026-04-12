@@ -29,6 +29,19 @@ The safest first wave is `W00 + W01 + W02 + W03`.
 Do not start `W04` until `W01` and `W02` have stabilized their first public
 contracts.
 
+## 1.1 What Is Actually Shared
+
+Each worktree sees the same repository history, but it does **not** share
+uncommitted edits or branch-local changes with the other worktrees.
+
+So in real use:
+
+- `W00` on `main` is the coordination source of truth
+- `W01/W02/W03` own implementation work on their branches
+- shared status is updated by `W00` after each workstream reports progress
+
+This is why the `W00` window should remain open for the full session.
+
 ## 2. Startup Sequence
 
 1. In `W00`, confirm the task board and milestone still match reality.
@@ -129,6 +142,7 @@ Rules:
 - if a workstream must touch `Engine/CMakeLists.txt`, `RuntimeServices.hpp`, or `Application.cpp`, record it in `coordination/INTEGRATION_REPORT.md`
 - require every workstream to produce a handoff file before integration
 - do not silently resolve conflicting designs; write the decision into `docs/ARCHITECTURE_DECISIONS.md`
+- treat `main` as the authoritative location for coordination state
 
 Success criteria:
 - every active workstream has a clear owner, branch, and acceptance target
@@ -160,21 +174,22 @@ Read first:
 - `coordination/TASK_BOARD.md`
 
 Immediate tasks:
-1. claim W01 in `coordination/TASK_BOARD.md`
-2. add a start entry to `coordination/STATUS_LEDGER.md`
-3. implement the first useful version of:
+1. confirm that `W00` has claimed W01 on `main`
+2. implement the first useful version of:
    - command registry
    - command execution path
    - event bus
    - timer dispatch
-4. add clear comments explaining lifecycle and responsibility boundaries
-5. add or update focused tests for gameplay contracts
-6. create a handoff note in `coordination/HANDOFFS/` before stopping
+3. add clear comments explaining lifecycle and responsibility boundaries
+4. add or update focused tests for gameplay contracts
+5. create a handoff note in `coordination/HANDOFFS/` before stopping
+6. report status and interface changes back to `W00`
 
 Rules:
 - avoid broad edits outside `Engine/Gameplay/*`
 - if `RuntimeServices.hpp` or `Application.cpp` must change, keep the edit minimal and record it in the handoff and integration report
 - design the API to be stable for future scripting and AI-assisted gameplay authoring
+- do not assume branch-local edits to coordination files are visible to other windows until merged
 
 Done means:
 - gameplay events, commands, and timers have explicit contracts
@@ -208,22 +223,23 @@ Read first:
 - `coordination/TASK_BOARD.md`
 
 Immediate tasks:
-1. claim W02 in `coordination/TASK_BOARD.md`
-2. add a start entry to `coordination/STATUS_LEDGER.md`
-3. implement the first useful version of:
+1. confirm that `W00` has claimed W02 on `main`
+2. implement the first useful version of:
    - YAML loading contract
    - schema registration contract
    - validation result reporting
    - data registry queries that other systems can trust
-4. keep comments explicit about data ownership and error reporting
-5. add focused tests around loading and validation
-6. create a handoff note in `coordination/HANDOFFS/` before stopping
+3. keep comments explicit about data ownership and error reporting
+4. add focused tests around loading and validation
+5. create a handoff note in `coordination/HANDOFFS/` before stopping
+6. report status and interface changes back to `W00`
 
 Rules:
 - preserve schema-first design
 - do not bury validation failures in generic strings
 - keep the system easy for future Codex sessions to inspect and extend
 - if cross-cutting runtime service files must change, record them clearly
+- do not assume branch-local edits to coordination files are visible to other windows until merged
 
 Done means:
 - data contracts are structured and explicit
@@ -257,21 +273,22 @@ Read first:
 - `coordination/TASK_BOARD.md`
 
 Immediate tasks:
-1. claim W03 in `coordination/TASK_BOARD.md`
-2. add a start entry to `coordination/STATUS_LEDGER.md`
-3. improve the first useful version of:
+1. confirm that `W00` has claimed W03 on `main`
+2. improve the first useful version of:
    - frame and phase tracing
    - command and event capture
    - structured authoring context export
    - diagnostics summaries usable by humans and Codex
-4. keep comments explicit about observability boundaries and performance tradeoffs
-5. add focused tests for exported context and diagnostics lifecycle
-6. create a handoff note in `coordination/HANDOFFS/` before stopping
+3. keep comments explicit about observability boundaries and performance tradeoffs
+4. add focused tests for exported context and diagnostics lifecycle
+5. create a handoff note in `coordination/HANDOFFS/` before stopping
+6. report status and interface changes back to `W00`
 
 Rules:
 - AI context should describe runtime state, not mutate it
 - diagnostics must help integration rather than becoming log noise
 - if you need new shared hooks in the application loop, keep them small and documented
+- do not assume branch-local edits to coordination files are visible to other windows until merged
 
 Done means:
 - another Codex can inspect context output and understand the running engine
@@ -305,11 +322,11 @@ Read first:
 
 Immediate tasks:
 1. confirm W01 and W02 public contracts before implementation
-2. claim W04 in `coordination/TASK_BOARD.md`
-3. add a start entry to `coordination/STATUS_LEDGER.md`
-4. implement a stable scripting host boundary that can later back Lua gameplay modules
-5. comment the ownership split between engine-native gameplay and script-owned gameplay
-6. add focused tests and a complete handoff note before stopping
+2. confirm that `W00` has claimed W04 on `main`
+3. implement a stable scripting host boundary that can later back Lua gameplay modules
+4. comment the ownership split between engine-native gameplay and script-owned gameplay
+5. add focused tests and a complete handoff note before stopping
+6. report status and interface changes back to `W00`
 ```
 
 ## 10. Commit Convention
