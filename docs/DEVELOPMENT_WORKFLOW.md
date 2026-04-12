@@ -4,6 +4,12 @@ This repository is meant to be easy to read and easy to extend.
 
 The workflow below is designed to keep both true.
 
+If multiple Codex sessions are working in parallel, read
+[MULTI_CODEX_WORKFLOW.md](./MULTI_CODEX_WORKFLOW.md) and the files in
+`coordination/` before starting. For the practical window layout, startup
+prompts, and worktree commands, also read
+[MULTI_CODEX_LAUNCH_PLAN.md](./MULTI_CODEX_LAUNCH_PLAN.md).
+
 ## 1. Start with the Responsibility
 
 Before writing code, answer three questions:
@@ -25,14 +31,14 @@ Add to `Engine/<Module>/`.
 
 ### Gameplay code
 
-Add to `Game/Source/`.
+Add to `Game/Features/<FeatureName>/`.
 
 Gameplay should be expressed as:
 
-- layers
-- systems
-- state logic
-- data-driven configuration
+- feature-scoped layers or systems
+- schema-driven data
+- events and queued commands through `IGameplayService`
+- script module registration through `IScriptingService`
 
 Gameplay should not directly own low-level platform or rendering backends.
 
@@ -85,7 +91,19 @@ Example: adding an animation subsystem.
 4. Update `docs/ARCHITECTURE.md` and `docs/TECH_STACK.md`.
 5. Add a smoke test if the new feature changes runtime sequencing or ownership.
 
-## 6. Pull Request Checklist
+## 6. How to Add a New Gameplay Feature
+
+Example: adding a shop feature.
+
+1. Create `Game/Features/Shop/`.
+2. Add `ShopFeatureLayer.hpp/.cpp`.
+3. Add `Game/Features/Shop/Data/shop_item.schema.yml`.
+4. Register feature metadata in `OnAttach` through `IReflectionService`.
+5. Register schemas in `OnAttach` through `IDataService`.
+6. Use `IGameplayService` for shop events and commands.
+7. Add a small smoke test or feature test.
+
+## 7. Pull Request Checklist
 
 Before considering a change complete, check:
 
@@ -93,10 +111,11 @@ Before considering a change complete, check:
 - no forbidden dependency direction was added
 - comments explain the new boundary
 - docs were updated if architecture changed
+- feature metadata or schemas were added when gameplay contracts changed
 - build still configures
 - tests still pass
 
-## 7. Short-Term Roadmap for Contributors
+## 8. Short-Term Roadmap for Contributors
 
 If you want to help extend this bootstrap into a real 2D engine, the recommended next sequence is:
 
@@ -106,4 +125,3 @@ If you want to help extend this bootstrap into a real 2D engine, the recommended
 4. Introduce asset metadata and YAML scene files
 5. Add Box2D integration on the fixed-step path
 6. Add ImGui-based debug tooling
-

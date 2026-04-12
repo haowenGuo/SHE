@@ -1,0 +1,8 @@
+schema: feature.bootstrap.encounter
+description: Schema for a small encounter definition used by the bootstrap feature.
+required:
+  - id
+  - spawn_points
+  - enemy_refs
+  - reward_id
+

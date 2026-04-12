@@ -2,10 +2,16 @@ add_subdirectory(Core)
 add_subdirectory(Platform)
 add_subdirectory(Assets)
 add_subdirectory(Scene)
+add_subdirectory(Reflection)
+add_subdirectory(Data)
+add_subdirectory(Gameplay)
 add_subdirectory(Renderer)
 add_subdirectory(Physics)
 add_subdirectory(Audio)
 add_subdirectory(UI)
+add_subdirectory(Scripting)
+add_subdirectory(Diagnostics)
+add_subdirectory(AI)
 
 add_library(she_engine INTERFACE)
 target_link_libraries(
@@ -15,9 +21,14 @@ target_link_libraries(
         she_engine_platform
         she_engine_assets
         she_engine_scene
+        she_engine_reflection
+        she_engine_data
+        she_engine_gameplay
         she_engine_renderer
         she_engine_physics
         she_engine_audio
         she_engine_ui
+        she_engine_scripting
+        she_engine_diagnostics
+        she_engine_ai
 )
-

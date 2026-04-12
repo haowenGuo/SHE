@@ -23,10 +23,16 @@ The current code is intentionally not pretending that placeholder services are f
 | Platform | Null window service | `SDL3` | Strong Windows support now, easy path to more platforms later |
 | Assets | In-memory registry | `yaml-cpp` + import metadata + cooked cache | Clean asset identity before import complexity |
 | Scene | Minimal scene world | `EnTT` | Strong ECS ergonomics without overbuilding custom storage |
+| Reflection | In-memory metadata registry | custom lightweight registration layer | Keep engine and features self-describing |
+| Data | In-memory schema registry | `yaml-cpp` + schema validation | Make gameplay data explicit and AI-friendly |
+| Gameplay | Commands, timers, event digest | command/event framework on top of ECS | Give gameplay a stable high-level authoring surface |
 | Renderer | Null renderer service | `OpenGL` first, optional later RHI | Fastest route to a practical 2D renderer |
 | Physics | Null physics service | `Box2D` | Reliable 2D collisions and rigid body basics |
 | Audio | Null audio service | `miniaudio` | Lightweight and very practical for indie-scale runtime audio |
 | UI | Null UI service | `Dear ImGui` + simple runtime HUD layer | Fast debug tooling without blocking gameplay work |
+| Scripting | Script module catalog | `Lua` + `sol2` | Fast gameplay iteration behind a stable host |
+| Diagnostics | Frame trace recorder | `spdlog` + `Tracy` + frame snapshots | Debuggable runtime for humans and AI |
+| AI | Authoring context exporter | local context export + optional future LLM tools | Let Codex work from facts instead of guesses |
 
 ## 3. Why C++20
 
@@ -161,4 +167,3 @@ If you add code in later phases:
 - replace placeholder implementations behind the existing interfaces
 - do not let middleware leak everywhere
 - preserve the rule that gameplay code depends on engine contracts, not middleware APIs
-

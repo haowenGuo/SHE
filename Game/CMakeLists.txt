@@ -1,10 +1,10 @@
 add_library(
     she_gameplay
     STATIC
-        Source/BootstrapLayer.cpp
+        Features/Bootstrap/BootstrapFeatureLayer.cpp
 )
 
-target_include_directories(she_gameplay PUBLIC Source)
+target_include_directories(she_gameplay PUBLIC Source Features)
 target_link_libraries(she_gameplay PUBLIC she_engine)
 she_configure_target(she_gameplay)
 
@@ -15,4 +15,3 @@ add_executable(
 
 target_link_libraries(she_game PRIVATE she_gameplay she_engine)
 she_configure_target(she_game)
-

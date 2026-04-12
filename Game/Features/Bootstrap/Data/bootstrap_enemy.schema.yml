@@ -1,0 +1,8 @@
+schema: feature.bootstrap.enemy
+description: Schema for a small enemy definition used by the bootstrap feature.
+required:
+  - id
+  - display_name
+  - max_health
+  - move_speed
+

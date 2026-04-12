@@ -1,267 +1,211 @@
 # Architecture
 
-This document is the main map of the project.
+This repository now targets an AI-native 2D engine architecture.
 
-The most important idea is simple:
+The core idea is:
 
-> The engine owns runtime infrastructure.  
-> The game owns gameplay rules.  
-> Tools inspect or assist the runtime.  
-> Tests defend the contracts between them.
+> The engine should be understandable by humans and Codex through stable
+> service contracts, schema-first data, feature metadata, and frame-level
+> diagnostics.
 
 ## 1. Layered Model
 
 ```mermaid
 flowchart TD
-    Game["Game executable and gameplay layers"] --> Engine["Engine runtime modules"]
-    Tools["Sandbox and future editor tools"] --> Engine
-    Tests["Smoke and module tests"] --> Engine
-    Engine --> Core["Core contracts and application loop"]
-    Engine --> Platform["Windowing, input, filesystem"]
-    Engine --> Assets["Asset handles and loading"]
-    Engine --> Scene["Scene, entity, component ownership"]
-    Engine --> Renderer["Render queue and backend"]
-    Engine --> Physics["Fixed-step simulation"]
-    Engine --> Audio["Playback and mixing"]
-    Engine --> UI["Debug and runtime UI"]
+    Codex["Codex / Authoring Tools"] --> AI["Engine/AI"]
+    Game["Game/Features/*"] --> Engine["Engine Runtime"]
+    Tools["Sandbox / future editor tools"] --> Engine
+    Tests["Smoke and feature tests"] --> Engine
+    Engine --> Core["Core"]
+    Engine --> Platform["Platform"]
+    Engine --> Assets["Assets"]
+    Engine --> Scene["Scene"]
+    Engine --> Reflection["Reflection"]
+    Engine --> Data["Data"]
+    Engine --> Gameplay["Gameplay"]
+    Engine --> Renderer["Renderer"]
+    Engine --> Physics["Physics"]
+    Engine --> Audio["Audio"]
+    Engine --> UI["UI"]
+    Engine --> Scripting["Scripting"]
+    Engine --> Diagnostics["Diagnostics"]
+    Engine --> AI
 ```
 
-Rules:
+## 2. Ownership Rules
 
-1. `Game/` may depend on engine modules, but engine modules may not depend on `Game/`.
-2. `Tools/` may depend on engine modules, but shipping runtime code may not depend on `Tools/`.
-3. The application loop in `Core/` talks to other modules through service interfaces, not concrete implementations.
-4. Gameplay code should not call graphics API code directly.
-5. Scene state is the source of truth for the game world.
+1. `Game/Features/*` depends on engine services, not concrete middleware APIs.
+2. `Engine/Core` owns sequencing, not gameplay rules.
+3. `Engine/Gameplay` owns events, commands, and timers.
+4. `Engine/Data` owns schema contracts for gameplay-authored data.
+5. `Engine/Reflection` owns metadata that describes engine and feature types.
+6. `Engine/AI` exports authoring context; it does not directly mutate gameplay.
+7. `Engine/Diagnostics` records what happened in a frame so tooling can reason
+   about failures.
 
-## 2. Runtime Ownership Model
+## 3. Runtime Services
 
-The runtime is built around three ideas:
+The application loop talks to the rest of the engine through
+[RuntimeServices.hpp](../Engine/Core/Include/SHE/Core/RuntimeServices.hpp).
 
-### Application
+Current services:
 
-`Application` is the orchestrator. It owns:
+- `IWindowService`
+- `IAssetService`
+- `ISceneService`
+- `IReflectionService`
+- `IDataService`
+- `IGameplayService`
+- `IRendererService`
+- `IPhysicsService`
+- `IAudioService`
+- `IUiService`
+- `IScriptingService`
+- `IDiagnosticsService`
+- `IAIService`
 
-- the main loop
-- the fixed/update tick split
-- the layer stack
-- the lifetime order of engine services
+This is the backbone of the architecture. When a subsystem is added later, the
+first question is whether it needs to be a runtime service or a feature module.
 
-It does **not** own gameplay rules, rendering policy, or scene contents directly.
+## 4. AI-Native Modules
 
-### Runtime Services
+### Reflection
 
-The application talks to the engine through `RuntimeServices`.
+Files:
 
-That struct contains interfaces for:
+- [ReflectionService.hpp](../Engine/Reflection/Include/SHE/Reflection/ReflectionService.hpp)
+- [ReflectionService.cpp](../Engine/Reflection/Source/ReflectionService.cpp)
 
-- window / platform
-- assets
-- scene
-- renderer
-- physics
-- audio
-- UI
+Purpose:
 
-This is important because it keeps the loop stable even while implementations change. Today the renderer is a bootstrap placeholder. Later it can become an OpenGL renderer without forcing the rest of the runtime to be rewritten.
+- register types
+- register feature modules
+- build a human/AI-readable catalog
 
-### Layers
+### Data
 
-Gameplay is plugged into the application through `Layer`.
+Files:
 
-Layers are the primary extension point for:
+- [DataService.hpp](../Engine/Data/Include/SHE/Data/DataService.hpp)
+- [DataService.cpp](../Engine/Data/Source/DataService.cpp)
 
-- gameplay systems
-- menus
-- overlays
-- debug views
-- sandbox experiments
+Purpose:
 
-The current layer lifecycle is:
+- register gameplay schemas
+- describe required fields
+- become the future home of YAML validation
 
-1. `OnAttach`
-2. `OnFixedUpdate`
-3. `OnUpdate`
-4. `OnRender`
-5. `OnUi`
-6. `OnDetach`
+### Gameplay
 
-This gives a very understandable flow and keeps the game loop readable.
+Files:
 
-## 3. Planned Module Responsibilities
+- [CommandBuffer.hpp](../Engine/Gameplay/Include/SHE/Gameplay/CommandBuffer.hpp)
+- [TimerService.hpp](../Engine/Gameplay/Include/SHE/Gameplay/TimerService.hpp)
+- [GameplayService.hpp](../Engine/Gameplay/Include/SHE/Gameplay/GameplayService.hpp)
 
-### Core
+Purpose:
 
-Owns fundamental contracts:
+- centralize gameplay commands
+- centralize timed events
+- provide a single digest of frame-level gameplay activity
 
-- `Application`
-- `AppClock`
-- `Layer` and `LayerStack`
-- `RuntimeServices`
-- logging and shared value types
+### Scripting
 
-Core is intentionally lightweight. It should remain the most stable module in the repository.
+Files:
 
-### Platform
+- [ScriptingService.hpp](../Engine/Scripting/Include/SHE/Scripting/ScriptingService.hpp)
 
-Owns the operating-system-facing layer:
+Purpose:
 
-- window creation
-- event pumping
-- input
-- filesystem adapters
-- timing hooks when needed
+- stable host boundary for future Lua integration
+- catalog script modules for Codex context export
 
-Current phase uses a null bootstrap implementation. Later we expect `SDL3`.
+### Diagnostics
 
-### Assets
+Files:
 
-Owns asset identity and lifetime:
+- [DiagnosticsService.hpp](../Engine/Diagnostics/Include/SHE/Diagnostics/DiagnosticsService.hpp)
 
-- asset handles
-- logical names
-- source paths
-- future import settings and cache metadata
+Purpose:
 
-Gameplay code should request assets by logical identity, not by opening arbitrary files everywhere.
+- record per-frame phase traces
+- make failures explainable and reviewable
 
-### Scene
+### AI
 
-Owns the game world model:
+Files:
 
-- active scene
-- entity creation
-- components
-- transform hierarchy
+- [AuthoringAiService.hpp](../Engine/AI/Include/SHE/AI/AuthoringAiService.hpp)
+- [AuthoringAiService.cpp](../Engine/AI/Source/AuthoringAiService.cpp)
 
-The bootstrap implementation is intentionally simple. The long-term plan is to move to `EnTT` while keeping the same architectural role.
+Purpose:
 
-### Renderer
+- export a stable authoring context
+- summarize the active scene, schemas, features, scripts, and diagnostics
 
-Owns frame submission and backend execution:
+## 5. Gameplay Feature Shape
 
-- frame begin/end
-- scene submission
-- future sprite batching
-- future camera and render pass organization
+Gameplay no longer wants to grow as a flat `Game/Source` directory.
 
-The key rule: gameplay should describe what needs to be rendered, not how GPU commands are issued.
+Preferred layout:
 
-### Physics
+```text
+Game/Features/<FeatureName>/
+  <FeatureName>Layer.hpp
+  <FeatureName>Layer.cpp
+  Data/
+    <feature>.schema.yml
+  Tests/
+    <FeatureName>Tests.cpp
+  README.md
+```
 
-Owns deterministic fixed-step simulation.
+The bootstrap example lives at:
 
-The main architectural rule is:
+- [BootstrapFeatureLayer.hpp](../Game/Features/Bootstrap/BootstrapFeatureLayer.hpp)
+- [BootstrapFeatureLayer.cpp](../Game/Features/Bootstrap/BootstrapFeatureLayer.cpp)
 
-> physics advances only during fixed update
-
-This is why the application clock and the physics interface are coupled through the fixed timestep path.
-
-### Audio
-
-Owns playback services, buses, and future mixing.
-
-For now it is a placeholder service. The future backend is planned around `miniaudio`.
-
-### UI
-
-Owns debugging overlays and, later, runtime HUD support.
-
-The long-term direction is:
-
-- `Dear ImGui` for debug tools
-- a lightweight game-facing HUD layer for shipping UI
-
-## 4. Frame Flow
+## 6. Frame Flow
 
 ```mermaid
 flowchart TD
-    A["Pump window events"] --> B["Advance clock"]
-    B --> C["Run 0..N fixed steps"]
-    C --> D["Update gameplay layers"]
-    D --> E["Sync scene state"]
-    E --> F["Begin render frame"]
-    F --> G["Render gameplay layers"]
-    G --> H["Run debug UI"]
-    H --> I["End render frame"]
-    I --> J["Update audio"]
+    A["Diagnostics.BeginFrame"] --> B["Window.PumpEvents"]
+    B --> C["Gameplay.BeginFrame"]
+    C --> D["Fixed updates"]
+    D --> E["Layer.OnUpdate"]
+    E --> F["Gameplay.AdvanceFrame / FlushCommands"]
+    F --> G["Scripting.Update"]
+    G --> H["Scene.UpdateSceneGraph"]
+    H --> I["Renderer + UI"]
+    I --> J["Audio.Update"]
+    J --> K["AI.RefreshContext"]
+    K --> L["Diagnostics.EndFrame"]
 ```
 
-This order is deliberate:
+## 7. Dependency Rules
 
-- input and platform events come first
-- physics consumes fixed steps before frame update
-- scene updates happen before render submission
-- renderer and UI stay late in the frame
+Allowed:
 
-## 5. Dependency Rules
-
-These rules are the practical backbone of the codebase.
-
-### Allowed
-
-- `Game -> Engine::*`
+- `Game/Features -> Engine::*`
 - `Tools -> Engine::*`
 - `Tests -> Engine::*`
-- `Renderer -> Core`
-- `Scene -> Core`
-- `Assets -> Core`
-- `Platform -> Core`
+- `AI -> Reflection/Data/Gameplay/Diagnostics contracts`
 
-### Not Allowed
+Not allowed:
 
 - `Engine -> Game`
-- `Core -> Platform concrete implementations`
-- `Renderer -> Game`
-- `Physics -> Renderer`
-- `Assets -> Game`
+- `Gameplay -> Renderer`
+- `AI -> direct gameplay mutation`
+- `Data -> Game-specific code`
 
-If a new feature seems to require a forbidden dependency, the design should be revisited.
+## 8. Why This Helps Codex
 
-## 6. How Features Should Land
+Codex performs best when the project is:
 
-When adding a gameplay feature:
+- small-surface and explicit
+- rich in local contracts
+- organized by feature boundaries
+- backed by data schemas
+- able to explain its current runtime story
 
-1. Add or update the data shape in `Scene/` or `Game/Data/`
-2. Add engine-facing contracts if needed
-3. Implement the runtime system in the appropriate engine module
-4. Use a gameplay layer in `Game/` to express the rule
-5. Add a smoke test if the new feature changes engine contracts
-
-When adding a new engine subsystem:
-
-1. Start with the interface in `Core/RuntimeServices`
-2. Put the concrete implementation in the correct module
-3. Wire the implementation from the executable entry point
-4. Document the module contract in this file and `docs/TECH_STACK.md`
-
-## 7. Phase Plan
-
-### Phase 1: Runtime Spine
-
-- application loop
-- service contracts
-- bootstrap implementations
-- architecture documentation
-
-### Phase 2: Real 2D Runtime
-
-- SDL3 window/input
-- OpenGL renderer
-- texture loading
-- cameras and sprite batching
-
-### Phase 3: World and Gameplay
-
-- EnTT scene model
-- Box2D integration
-- animation
-- prefabs and scenes from YAML
-
-### Phase 4: Production Features
-
-- debug tools
-- asset hot reload
-- save/load
-- polished game loop for the first small game
-
+That is exactly what the current refactor is trying to enforce.

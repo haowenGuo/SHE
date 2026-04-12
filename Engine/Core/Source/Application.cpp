@@ -67,10 +67,14 @@ int Application::Run()
 
         while (m_isRunning && !m_services.window->ShouldClose())
         {
+            m_services.diagnostics->BeginFrame(m_frameIndex);
             m_services.window->PumpEvents();
+            m_services.diagnostics->RecordPhase("Platform", "Window events pumped.");
             const FrameSchedule schedule = m_clock.AdvanceFrame();
+            m_services.gameplay->BeginFrame(m_frameIndex);
 
             RunFixedUpdates(schedule.fixedSteps);
+            m_services.diagnostics->RecordPhase("FixedUpdate", "Fixed-step simulation advanced.");
 
             TickContext updateContext{
                 schedule.deltaSeconds,
@@ -84,7 +88,11 @@ int Application::Run()
                 layer->OnUpdate(updateContext);
             }
 
+            m_services.gameplay->AdvanceFrame(schedule.deltaSeconds);
+            m_services.gameplay->FlushCommands();
+            m_services.scripting->Update(schedule.deltaSeconds);
             m_services.scene->UpdateSceneGraph(schedule.deltaSeconds);
+            m_services.diagnostics->RecordPhase("Gameplay", "Gameplay, scripting, and scene graph updated.");
 
             m_services.renderer->BeginFrame(m_frameIndex);
             for (const auto& layer : m_layers.GetLayers())
@@ -104,7 +112,11 @@ int Application::Run()
             m_services.ui->EndFrame();
 
             m_services.renderer->EndFrame();
+            m_services.diagnostics->RecordPhase("Presentation", "Renderer and UI completed frame submission.");
             m_services.audio->Update(schedule.deltaSeconds);
+            m_services.diagnostics->RecordPhase("Audio", "Audio service consumed the frame delta.");
+            m_services.diagnostics->EndFrame();
+            m_services.ai->RefreshContext(m_frameIndex);
 
             ++m_frameIndex;
             if (m_config.maxFrames > 0 && m_frameIndex >= m_config.maxFrames)
@@ -142,20 +154,32 @@ void Application::InitializeServices()
     m_services.window->Initialize(m_config);
     m_services.assets->Initialize();
     m_services.scene->Initialize();
+    m_services.reflection->Initialize();
+    m_services.data->Initialize();
+    m_services.gameplay->Initialize();
     m_services.renderer->Initialize(m_config);
     m_services.physics->Initialize();
     m_services.audio->Initialize();
     m_services.ui->Initialize();
+    m_services.scripting->Initialize();
+    m_services.diagnostics->Initialize();
+    m_services.ai->Initialize();
 }
 
 void Application::ShutdownServices()
 {
     SHE_LOG_INFO("Application", "Shutting down runtime services.");
 
+    m_services.ai->Shutdown();
+    m_services.diagnostics->Shutdown();
+    m_services.scripting->Shutdown();
     m_services.ui->Shutdown();
     m_services.audio->Shutdown();
     m_services.physics->Shutdown();
     m_services.renderer->Shutdown();
+    m_services.gameplay->Shutdown();
+    m_services.data->Shutdown();
+    m_services.reflection->Shutdown();
     m_services.scene->Shutdown();
     m_services.assets->Shutdown();
     m_services.window->Shutdown();
@@ -198,6 +222,7 @@ void Application::RunFixedUpdates(const std::size_t fixedStepCount)
             layer->OnFixedUpdate(fixedContext);
         }
 
+        m_services.gameplay->AdvanceFixedStep(m_clock.GetFixedTimeStep());
         m_services.physics->Step(m_clock.GetFixedTimeStep());
     }
 }

@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace she
 {
@@ -63,6 +64,52 @@ public:
     virtual void EndFrame() = 0;
 };
 
+class IReflectionService
+{
+public:
+    virtual ~IReflectionService() = default;
+
+    virtual void Initialize() = 0;
+    virtual void Shutdown() = 0;
+    virtual void RegisterType(std::string category, std::string typeName, std::string description) = 0;
+    virtual void RegisterFeature(std::string featureName, std::string ownerModule, std::string description) = 0;
+    virtual std::size_t GetRegisteredTypeCount() const = 0;
+    virtual std::size_t GetRegisteredFeatureCount() const = 0;
+    virtual std::string BuildTypeCatalog() const = 0;
+};
+
+class IDataService
+{
+public:
+    virtual ~IDataService() = default;
+
+    virtual void Initialize() = 0;
+    virtual void Shutdown() = 0;
+    virtual void RegisterSchema(std::string schemaName, std::string description, std::vector<std::string> requiredFields) = 0;
+    virtual bool HasSchema(std::string_view schemaName) const = 0;
+    virtual std::size_t GetSchemaCount() const = 0;
+    virtual std::string DescribeSchemas() const = 0;
+};
+
+class IGameplayService
+{
+public:
+    virtual ~IGameplayService() = default;
+
+    virtual void Initialize() = 0;
+    virtual void Shutdown() = 0;
+    virtual void BeginFrame(FrameIndex frameIndex) = 0;
+    virtual void AdvanceFixedStep(double fixedTimeStep) = 0;
+    virtual void AdvanceFrame(double deltaSeconds) = 0;
+    virtual void QueueEvent(std::string category, std::string name, std::string payload) = 0;
+    virtual void QueueCommand(std::string name, std::string payload) = 0;
+    virtual void CreateTimer(std::string timerName, double durationSeconds, bool repeating) = 0;
+    virtual void FlushCommands() = 0;
+    virtual std::size_t GetPendingCommandCount() const = 0;
+    virtual std::size_t GetTimerCount() const = 0;
+    virtual std::string BuildGameplayDigest() const = 0;
+};
+
 class IPhysicsService
 {
 public:
@@ -94,20 +141,66 @@ public:
     virtual void EndFrame() = 0;
 };
 
+class IScriptingService
+{
+public:
+    virtual ~IScriptingService() = default;
+
+    virtual void Initialize() = 0;
+    virtual void Shutdown() = 0;
+    virtual void RegisterScriptModule(std::string moduleName, std::string description) = 0;
+    virtual void Update(double deltaSeconds) = 0;
+    virtual std::size_t GetModuleCount() const = 0;
+    virtual std::string BuildScriptCatalog() const = 0;
+};
+
+class IDiagnosticsService
+{
+public:
+    virtual ~IDiagnosticsService() = default;
+
+    virtual void Initialize() = 0;
+    virtual void Shutdown() = 0;
+    virtual void BeginFrame(FrameIndex frameIndex) = 0;
+    virtual void RecordPhase(std::string phaseName, std::string summary) = 0;
+    virtual void EndFrame() = 0;
+    virtual std::size_t GetCapturedFrameCount() const = 0;
+    virtual std::string BuildLatestReport() const = 0;
+};
+
+class IAIService
+{
+public:
+    virtual ~IAIService() = default;
+
+    virtual void Initialize() = 0;
+    virtual void Shutdown() = 0;
+    virtual void SetAuthoringIntent(std::string intent) = 0;
+    virtual void RefreshContext(FrameIndex frameIndex) = 0;
+    virtual std::size_t GetContextVersion() const = 0;
+    virtual std::string ExportAuthoringContext() const = 0;
+};
+
 struct RuntimeServices
 {
     std::shared_ptr<IWindowService> window;
     std::shared_ptr<IAssetService> assets;
     std::shared_ptr<ISceneService> scene;
+    std::shared_ptr<IReflectionService> reflection;
+    std::shared_ptr<IDataService> data;
+    std::shared_ptr<IGameplayService> gameplay;
     std::shared_ptr<IRendererService> renderer;
     std::shared_ptr<IPhysicsService> physics;
     std::shared_ptr<IAudioService> audio;
     std::shared_ptr<IUiService> ui;
+    std::shared_ptr<IScriptingService> scripting;
+    std::shared_ptr<IDiagnosticsService> diagnostics;
+    std::shared_ptr<IAIService> ai;
 
     [[nodiscard]] bool IsComplete() const
     {
-        return window && assets && scene && renderer && physics && audio && ui;
+        return window && assets && scene && reflection && data && gameplay && renderer && physics && audio && ui &&
+               scripting && diagnostics && ai;
     }
 };
 } // namespace she
-

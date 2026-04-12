@@ -14,8 +14,13 @@ At this stage the project is a compileable architectural skeleton rather than a 
 ## Read This First
 
 1. [Architecture](docs/ARCHITECTURE.md)
-2. [Tech Stack](docs/TECH_STACK.md)
-3. [Development Workflow](docs/DEVELOPMENT_WORKFLOW.md)
+2. [AI-Native Refactor](docs/AI_NATIVE_REFACTOR.md)
+3. [Multi-Codex Workflow](docs/MULTI_CODEX_WORKFLOW.md)
+4. [Multi-Codex Launch Plan](docs/MULTI_CODEX_LAUNCH_PLAN.md)
+5. [Module Priority](docs/MODULE_PRIORITY.md)
+6. [Milestones](docs/MILESTONES.md)
+7. [Tech Stack](docs/TECH_STACK.md)
+8. [Development Workflow](docs/DEVELOPMENT_WORKFLOW.md)
 
 ## Current Milestone
 
@@ -29,6 +34,15 @@ Phase 1 is about the runtime spine:
 - smoke tests
 
 The current code uses minimal in-house placeholder implementations so the repository can compile without external dependencies. The architecture documents already explain which third-party technologies are planned for later phases.
+
+The next layer of the project is intentionally AI-native:
+
+- `Engine/Reflection` tracks types and feature metadata for tooling and Codex context export.
+- `Engine/Data` owns schema-first data contracts that gameplay features can depend on safely.
+- `Engine/Gameplay` owns events, commands, timers, and gameplay-facing runtime services.
+- `Engine/Scripting` reserves a stable host interface for future Lua gameplay modules.
+- `Engine/Diagnostics` records frame traces and reports that make AI-assisted debugging practical.
+- `Engine/AI` exports a structured authoring context so Codex can understand the project without guessing.
 
 ## Directory Map
 
