@@ -17,12 +17,12 @@ open one worktree per active workstream.
 
 | Window | Role | Workspace | Branch | Start Now |
 | --- | --- | --- | --- | --- |
-| W00 | Architect + Integrator | `F:\SHE` | `main` | yes |
-| W01 | Gameplay Core | `F:\SHE-w01-gameplay` | `codex/w01/gameplay-core` | yes |
-| W02 | Data Core | `F:\SHE-w02-data` | `codex/w02/data-core` | yes |
-| W03 | Diagnostics + AI | `F:\SHE-w03-diagnostics` | `codex/w03/diagnostics-ai` | yes |
-| W04 | Scripting Host | `F:\SHE-w04-scripting` | `codex/w04/scripting-host` | later |
-| W90 | QA + Integration Validation | `F:\SHE-w90-qa` | `codex/w90/qa-integration` | later |
+| W00 | Architect + Integrator | `F:\SHE-workspace\SHE` | `main` | yes |
+| W01 | Gameplay Core | `F:\SHE-workspace\SHE-w01-gameplay` | `codex/w01/gameplay-core` | yes |
+| W02 | Data Core | `F:\SHE-workspace\SHE-w02-data` | `codex/w02/data-core` | yes |
+| W03 | Diagnostics + AI | `F:\SHE-workspace\SHE-w03-diagnostics` | `codex/w03/diagnostics-ai` | yes |
+| W04 | Scripting Host | `F:\SHE-workspace\SHE-w04-scripting` | `codex/w04/scripting-host` | later |
+| W90 | QA + Integration Validation | `F:\SHE-workspace\SHE-w90-qa` | `codex/w90/qa-integration` | later |
 
 The safest first wave is `W00 + W01 + W02 + W03`.
 
@@ -54,12 +54,12 @@ This is why the `W00` window should remain open for the full session.
 
 ## 3. Branch And Worktree Commands
 
-Run these in PowerShell from `F:\SHE`.
+Run these in PowerShell from `F:\SHE-workspace\SHE`.
 
 ### Manual first-wave setup
 
 ```powershell
-Set-Location F:\SHE
+Set-Location F:\SHE-workspace\SHE
 git worktree add -b codex/w01/gameplay-core ..\SHE-w01-gameplay main
 git worktree add -b codex/w02/data-core ..\SHE-w02-data main
 git worktree add -b codex/w03/diagnostics-ai ..\SHE-w03-diagnostics main
@@ -68,7 +68,7 @@ git worktree add -b codex/w03/diagnostics-ai ..\SHE-w03-diagnostics main
 ### Manual second-wave setup
 
 ```powershell
-Set-Location F:\SHE
+Set-Location F:\SHE-workspace\SHE
 git worktree add -b codex/w04/scripting-host ..\SHE-w04-scripting main
 git worktree add -b codex/w90/qa-integration ..\SHE-w90-qa main
 ```
@@ -76,7 +76,7 @@ git worktree add -b codex/w90/qa-integration ..\SHE-w90-qa main
 ### If the branch already exists
 
 ```powershell
-Set-Location F:\SHE
+Set-Location F:\SHE-workspace\SHE
 git worktree add ..\SHE-w01-gameplay codex/w01/gameplay-core
 git worktree add ..\SHE-w02-data codex/w02/data-core
 git worktree add ..\SHE-w03-diagnostics codex/w03/diagnostics-ai
@@ -87,7 +87,7 @@ git worktree add ..\SHE-w03-diagnostics codex/w03/diagnostics-ai
 Only do this after the workstream has been merged or intentionally retired.
 
 ```powershell
-Set-Location F:\SHE
+Set-Location F:\SHE-workspace\SHE
 git worktree remove ..\SHE-w01-gameplay
 git branch -d codex/w01/gameplay-core
 ```
@@ -101,13 +101,13 @@ This repository also includes a helper script:
 Usage:
 
 ```powershell
-Set-Location F:\SHE
+Set-Location F:\SHE-workspace\SHE
 powershell -ExecutionPolicy Bypass -File .\Tools\Dev\Create-MultiCodexWorktrees.ps1
 ```
 
 ## 5. Startup Prompt For W00
 
-Paste this into the Codex session that stays on `F:\SHE`.
+Paste this into the Codex session that stays on `F:\SHE-workspace\SHE`.
 
 ```text
 You are the Architect and Integrator Codex for the SHE repository.
@@ -151,13 +151,13 @@ Success criteria:
 
 ## 6. Startup Prompt For W01
 
-Paste this into the Codex session opened on `F:\SHE-w01-gameplay`.
+Paste this into the Codex session opened on `F:\SHE-workspace\SHE-w01-gameplay`.
 
 ```text
 You are the W01 Gameplay Core Codex for the SHE repository.
 
 Workspace:
-- worktree `F:\SHE-w01-gameplay`
+- worktree `F:\SHE-workspace\SHE-w01-gameplay`
 - branch `codex/w01/gameplay-core`
 
 Own only this boundary unless the architecture owner explicitly asks for more:
@@ -200,13 +200,13 @@ Done means:
 
 ## 7. Startup Prompt For W02
 
-Paste this into the Codex session opened on `F:\SHE-w02-data`.
+Paste this into the Codex session opened on `F:\SHE-workspace\SHE-w02-data`.
 
 ```text
 You are the W02 Data Core Codex for the SHE repository.
 
 Workspace:
-- worktree `F:\SHE-w02-data`
+- worktree `F:\SHE-workspace\SHE-w02-data`
 - branch `codex/w02/data-core`
 
 Own only this boundary unless the architecture owner explicitly asks for more:
@@ -249,13 +249,13 @@ Done means:
 
 ## 8. Startup Prompt For W03
 
-Paste this into the Codex session opened on `F:\SHE-w03-diagnostics`.
+Paste this into the Codex session opened on `F:\SHE-workspace\SHE-w03-diagnostics`.
 
 ```text
 You are the W03 Diagnostics and AI Context Codex for the SHE repository.
 
 Workspace:
-- worktree `F:\SHE-w03-diagnostics`
+- worktree `F:\SHE-workspace\SHE-w03-diagnostics`
 - branch `codex/w03/diagnostics-ai`
 
 Own only this boundary unless the architecture owner explicitly asks for more:
@@ -304,7 +304,7 @@ Start this only after the first wave stabilizes.
 You are the W04 Scripting Host Codex for the SHE repository.
 
 Workspace:
-- worktree `F:\SHE-w04-scripting`
+- worktree `F:\SHE-workspace\SHE-w04-scripting`
 - branch `codex/w04/scripting-host`
 
 Own only this boundary unless the architecture owner explicitly asks for more:
