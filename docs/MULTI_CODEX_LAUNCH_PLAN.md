@@ -9,25 +9,27 @@ Use it together with:
 - [MODULE_PRIORITY.md](./MODULE_PRIORITY.md)
 - [coordination/TASK_BOARD.md](../coordination/TASK_BOARD.md)
 - [coordination/STATUS_LEDGER.md](../coordination/STATUS_LEDGER.md)
+- [coordination/SESSION_BOOTSTRAP.md](../coordination/SESSION_BOOTSTRAP.md)
 
 ## 1. Recommended Window Layout
 
-Use the original repository as the architecture and integration workspace, then
-open one worktree per active workstream.
+Use `F:\SHE-workspace\` as the parent directory for all worktrees.
 
-| Window | Role | Workspace | Branch | Start Now |
+| Window | Responsibility | Workspace | Branch | Recommended Start |
 | --- | --- | --- | --- | --- |
-| W00 | Architect + Integrator | `F:\SHE-workspace\SHE` | `main` | yes |
-| W01 | Gameplay Core | `F:\SHE-workspace\SHE-w01-gameplay` | `codex/w01/gameplay-core` | yes |
-| W02 | Data Core | `F:\SHE-workspace\SHE-w02-data` | `codex/w02/data-core` | yes |
-| W03 | Diagnostics + AI | `F:\SHE-workspace\SHE-w03-diagnostics` | `codex/w03/diagnostics-ai` | yes |
-| W04 | Scripting Host | `F:\SHE-workspace\SHE-w04-scripting` | `codex/w04/scripting-host` | later |
-| W90 | QA + Integration Validation | `F:\SHE-workspace\SHE-w90-qa` | `codex/w90/qa-integration` | later |
-
-The safest first wave is `W00 + W01 + W02 + W03`.
-
-Do not start `W04` until `W01` and `W02` have stabilized their first public
-contracts.
+| W00 | Architect + Integrator | `F:\SHE-workspace\SHE` | `main` | always on |
+| W01 | Gameplay Core | `F:\SHE-workspace\SHE-w01-gameplay` | `codex/w01/gameplay-core` | wave A |
+| W02 | Data Core | `F:\SHE-workspace\SHE-w02-data` | `codex/w02/data-core` | wave A |
+| W03 | Diagnostics + AI Context | `F:\SHE-workspace\SHE-w03-diagnostics` | `codex/w03/diagnostics-ai` | wave A |
+| W04 | Scripting Host | `F:\SHE-workspace\SHE-w04-scripting` | `codex/w04/scripting-host` | wave D |
+| W05 | Scene + ECS | `F:\SHE-workspace\SHE-w05-scene` | `codex/w05/scene-ecs` | wave B |
+| W06 | Asset Pipeline | `F:\SHE-workspace\SHE-w06-assets` | `codex/w06/asset-pipeline` | wave B |
+| W07 | Platform + Input | `F:\SHE-workspace\SHE-w07-platform` | `codex/w07/platform-input` | wave B |
+| W08 | Renderer2D | `F:\SHE-workspace\SHE-w08-renderer` | `codex/w08/renderer2d` | wave C |
+| W09 | Physics2D | `F:\SHE-workspace\SHE-w09-physics` | `codex/w09/physics2d` | wave C |
+| W10 | Audio Runtime | `F:\SHE-workspace\SHE-w10-audio` | `codex/w10/audio-runtime` | wave C |
+| W11 | UI + Debug Tools | `F:\SHE-workspace\SHE-w11-ui-debug` | `codex/w11/ui-debug` | wave D |
+| W90 | QA + Integration Validation | `F:\SHE-workspace\SHE-w90-qa` | `codex/w90/qa-integration` | optional |
 
 ## 1.1 What Is Actually Shared
 
@@ -37,26 +39,43 @@ uncommitted edits or branch-local changes with the other worktrees.
 So in real use:
 
 - `W00` on `main` is the coordination source of truth
-- `W01/W02/W03` own implementation work on their branches
+- `W01-W11` own implementation work on their branches
 - shared status is updated by `W00` after each workstream reports progress
 
 This is why the `W00` window should remain open for the full session.
 
-## 2. Startup Sequence
+## 2. Recommended Rollout Waves
 
-1. In `W00`, confirm the task board and milestone still match reality.
-2. Create the worktrees for the first-wave workstreams.
-3. Open one Codex window per worktree.
-4. Paste the corresponding startup prompt into each window.
-5. Let each workstream update the task board and status ledger before it begins
-   code changes.
-6. Require every workstream to produce a handoff note before integration.
+### Wave A - Foundation contracts
 
-## 3. Branch And Worktree Commands
+- `W01 Gameplay Core`
+- `W02 Data Core`
+- `W03 Diagnostics + AI Context`
+
+### Wave B - Runtime spine
+
+- `W05 Scene + ECS`
+- `W06 Asset Pipeline`
+- `W07 Platform + Input`
+
+### Wave C - Playable runtime
+
+- `W08 Renderer2D`
+- `W09 Physics2D`
+- `W10 Audio Runtime`
+
+### Wave D - Higher-level authoring and inspection
+
+- `W04 Scripting Host`
+- `W11 UI + Debug Tools`
+
+If you do not want to open eleven windows at once, open them in that order.
+
+## 3. Worktree Commands
 
 Run these in PowerShell from `F:\SHE-workspace\SHE`.
 
-### Manual first-wave setup
+### Manual wave A setup
 
 ```powershell
 Set-Location F:\SHE-workspace\SHE
@@ -65,21 +84,55 @@ git worktree add -b codex/w02/data-core ..\SHE-w02-data main
 git worktree add -b codex/w03/diagnostics-ai ..\SHE-w03-diagnostics main
 ```
 
-### Manual second-wave setup
+### Manual wave B setup
+
+```powershell
+Set-Location F:\SHE-workspace\SHE
+git worktree add -b codex/w05/scene-ecs ..\SHE-w05-scene main
+git worktree add -b codex/w06/asset-pipeline ..\SHE-w06-assets main
+git worktree add -b codex/w07/platform-input ..\SHE-w07-platform main
+```
+
+### Manual wave C setup
+
+```powershell
+Set-Location F:\SHE-workspace\SHE
+git worktree add -b codex/w08/renderer2d ..\SHE-w08-renderer main
+git worktree add -b codex/w09/physics2d ..\SHE-w09-physics main
+git worktree add -b codex/w10/audio-runtime ..\SHE-w10-audio main
+```
+
+### Manual wave D setup
 
 ```powershell
 Set-Location F:\SHE-workspace\SHE
 git worktree add -b codex/w04/scripting-host ..\SHE-w04-scripting main
-git worktree add -b codex/w90/qa-integration ..\SHE-w90-qa main
+git worktree add -b codex/w11/ui-debug ..\SHE-w11-ui-debug main
+```
+
+### Full W01-W11 setup
+
+```powershell
+Set-Location F:\SHE-workspace\SHE
+git worktree add -b codex/w01/gameplay-core ..\SHE-w01-gameplay main
+git worktree add -b codex/w02/data-core ..\SHE-w02-data main
+git worktree add -b codex/w03/diagnostics-ai ..\SHE-w03-diagnostics main
+git worktree add -b codex/w04/scripting-host ..\SHE-w04-scripting main
+git worktree add -b codex/w05/scene-ecs ..\SHE-w05-scene main
+git worktree add -b codex/w06/asset-pipeline ..\SHE-w06-assets main
+git worktree add -b codex/w07/platform-input ..\SHE-w07-platform main
+git worktree add -b codex/w08/renderer2d ..\SHE-w08-renderer main
+git worktree add -b codex/w09/physics2d ..\SHE-w09-physics main
+git worktree add -b codex/w10/audio-runtime ..\SHE-w10-audio main
+git worktree add -b codex/w11/ui-debug ..\SHE-w11-ui-debug main
 ```
 
 ### If the branch already exists
 
 ```powershell
 Set-Location F:\SHE-workspace\SHE
-git worktree add ..\SHE-w01-gameplay codex/w01/gameplay-core
-git worktree add ..\SHE-w02-data codex/w02/data-core
-git worktree add ..\SHE-w03-diagnostics codex/w03/diagnostics-ai
+git worktree add ..\SHE-w05-scene codex/w05/scene-ecs
+git worktree add ..\SHE-w08-renderer codex/w08/renderer2d
 ```
 
 ### Cleanup after merge
@@ -88,248 +141,366 @@ Only do this after the workstream has been merged or intentionally retired.
 
 ```powershell
 Set-Location F:\SHE-workspace\SHE
-git worktree remove ..\SHE-w01-gameplay
-git branch -d codex/w01/gameplay-core
+git worktree remove ..\SHE-w08-renderer
+git branch -d codex/w08/renderer2d
 ```
 
-## 4. Optional Helper Script
+## 4. Helper Script
 
-This repository also includes a helper script:
+This repository includes a worktree creation helper:
 
 - [Create-MultiCodexWorktrees.ps1](../Tools/Dev/Create-MultiCodexWorktrees.ps1)
 
-Usage:
+Usage examples:
 
 ```powershell
 Set-Location F:\SHE-workspace\SHE
-powershell -ExecutionPolicy Bypass -File .\Tools\Dev\Create-MultiCodexWorktrees.ps1
+powershell -ExecutionPolicy Bypass -File .\Tools\Dev\Create-MultiCodexWorktrees.ps1 -Preset FirstWave
+powershell -ExecutionPolicy Bypass -File .\Tools\Dev\Create-MultiCodexWorktrees.ps1 -Preset RuntimeLayer
+powershell -ExecutionPolicy Bypass -File .\Tools\Dev\Create-MultiCodexWorktrees.ps1 -Preset FullW01W11
 ```
 
 ## 5. Startup Prompt For W00
 
-Paste this into the Codex session that stays on `F:\SHE-workspace\SHE`.
-
 ```text
-You are the Architect and Integrator Codex for the SHE repository.
+You are the W00 Architect and Integrator Codex for the SHE repository.
 
 Workspace:
-- repository root on branch `main`
+- `F:\SHE-workspace\SHE`
+- branch `main`
 
 Your role:
-- keep architecture direction stable
 - maintain `coordination/TASK_BOARD.md`
 - maintain `coordination/STATUS_LEDGER.md`
 - maintain `coordination/INTEGRATION_REPORT.md`
-- review interface changes across workstreams
-- prevent ownership conflicts
+- keep architecture direction stable
+- review cross-workstream interface changes
+- control integration order and acceptance
 
 Read first:
+- `coordination/SESSION_BOOTSTRAP.md`
 - `docs/ARCHITECTURE.md`
 - `docs/MULTI_CODEX_WORKFLOW.md`
 - `docs/MULTI_CODEX_LAUNCH_PLAN.md`
 - `docs/MODULE_PRIORITY.md`
-- `docs/MILESTONES.md`
+- `coordination/TASK_BOARD.md`
 
 Immediate tasks:
-1. confirm W01, W02, W03 are the active first-wave workstreams
-2. mark owners and status in `coordination/TASK_BOARD.md`
-3. add start entries in `coordination/STATUS_LEDGER.md`
-4. freeze any shared interface rules that workstreams must respect
-5. do not implement a large module yourself unless integration work is blocked
+1. confirm the current milestone and active wave
+2. claim active workstreams in `coordination/TASK_BOARD.md`
+3. update `coordination/STATUS_LEDGER.md` on `main`
+4. review dependency pressure between workstreams
+5. require a handoff note before integrating any workstream
 
 Rules:
-- prefer architecture, interface review, and integration work
-- if a workstream must touch `Engine/CMakeLists.txt`, `RuntimeServices.hpp`, or `Application.cpp`, record it in `coordination/INTEGRATION_REPORT.md`
-- require every workstream to produce a handoff file before integration
-- do not silently resolve conflicting designs; write the decision into `docs/ARCHITECTURE_DECISIONS.md`
-- treat `main` as the authoritative location for coordination state
-
-Success criteria:
-- every active workstream has a clear owner, branch, and acceptance target
-- the shared coordination files explain the current state without chat history
+- `main` is the source of truth for coordination state
+- record any shared-file changes in `coordination/INTEGRATION_REPORT.md`
+- use `docs/ARCHITECTURE_DECISIONS.md` for structural decisions
 ```
 
 ## 6. Startup Prompt For W01
-
-Paste this into the Codex session opened on `F:\SHE-workspace\SHE-w01-gameplay`.
 
 ```text
 You are the W01 Gameplay Core Codex for the SHE repository.
 
 Workspace:
-- worktree `F:\SHE-workspace\SHE-w01-gameplay`
+- `F:\SHE-workspace\SHE-w01-gameplay`
 - branch `codex/w01/gameplay-core`
 
-Own only this boundary unless the architecture owner explicitly asks for more:
+Own:
 - `Engine/Gameplay/*`
-- gameplay-related tests
-- minimal coordination docs required by the workflow
+- gameplay-focused tests
 
 Read first:
-- `docs/ARCHITECTURE.md`
-- `docs/MULTI_CODEX_WORKFLOW.md`
+- `coordination/SESSION_BOOTSTRAP.md`
 - `docs/MULTI_CODEX_LAUNCH_PLAN.md`
-- `docs/MODULE_PRIORITY.md`
 - `coordination/WORKSTREAMS/W01_gameplay-core.md`
-- `coordination/TASK_BOARD.md`
 
 Immediate tasks:
-1. confirm that `W00` has claimed W01 on `main`
-2. implement the first useful version of:
-   - command registry
-   - command execution path
-   - event bus
-   - timer dispatch
-3. add clear comments explaining lifecycle and responsibility boundaries
-4. add or update focused tests for gameplay contracts
-5. create a handoff note in `coordination/HANDOFFS/` before stopping
-6. report status and interface changes back to `W00`
+1. confirm W00 has claimed W01 on `main`
+2. implement command registry, execution path, event bus, and timer dispatch
+3. comment lifecycle boundaries clearly
+4. add focused gameplay contract tests
+5. write a handoff note before stopping
 
 Rules:
 - avoid broad edits outside `Engine/Gameplay/*`
-- if `RuntimeServices.hpp` or `Application.cpp` must change, keep the edit minimal and record it in the handoff and integration report
-- design the API to be stable for future scripting and AI-assisted gameplay authoring
-- do not assume branch-local edits to coordination files are visible to other windows until merged
-
-Done means:
-- gameplay events, commands, and timers have explicit contracts
-- comments make the subsystem teachable to the next Codex
-- relevant tests pass
-- handoff artifacts are complete
+- report any `RuntimeServices.hpp` or `Application.cpp` changes to W00
 ```
 
 ## 7. Startup Prompt For W02
-
-Paste this into the Codex session opened on `F:\SHE-workspace\SHE-w02-data`.
 
 ```text
 You are the W02 Data Core Codex for the SHE repository.
 
 Workspace:
-- worktree `F:\SHE-workspace\SHE-w02-data`
+- `F:\SHE-workspace\SHE-w02-data`
 - branch `codex/w02/data-core`
 
-Own only this boundary unless the architecture owner explicitly asks for more:
+Own:
 - `Engine/Data/*`
-- schema-related tests
-- minimal coordination docs required by the workflow
+- schema-focused tests
 
 Read first:
-- `docs/ARCHITECTURE.md`
+- `coordination/SESSION_BOOTSTRAP.md`
 - `docs/AI_CONTEXT.md`
-- `docs/MULTI_CODEX_WORKFLOW.md`
 - `docs/MULTI_CODEX_LAUNCH_PLAN.md`
 - `coordination/WORKSTREAMS/W02_data-core.md`
-- `coordination/TASK_BOARD.md`
 
 Immediate tasks:
-1. confirm that `W00` has claimed W02 on `main`
-2. implement the first useful version of:
-   - YAML loading contract
-   - schema registration contract
-   - validation result reporting
-   - data registry queries that other systems can trust
-3. keep comments explicit about data ownership and error reporting
-4. add focused tests around loading and validation
-5. create a handoff note in `coordination/HANDOFFS/` before stopping
-6. report status and interface changes back to `W00`
-
-Rules:
-- preserve schema-first design
-- do not bury validation failures in generic strings
-- keep the system easy for future Codex sessions to inspect and extend
-- if cross-cutting runtime service files must change, record them clearly
-- do not assume branch-local edits to coordination files are visible to other windows until merged
-
-Done means:
-- data contracts are structured and explicit
-- validation behavior is understandable from code and tests
-- handoff artifacts are complete
+1. confirm W00 has claimed W02 on `main`
+2. implement YAML loading, schema registration, validation results, and data queries
+3. keep error reporting structured and explicit
+4. add focused data-loading tests
+5. write a handoff note before stopping
 ```
 
 ## 8. Startup Prompt For W03
 
-Paste this into the Codex session opened on `F:\SHE-workspace\SHE-w03-diagnostics`.
-
 ```text
-You are the W03 Diagnostics and AI Context Codex for the SHE repository.
+You are the W03 Diagnostics + AI Context Codex for the SHE repository.
 
 Workspace:
-- worktree `F:\SHE-workspace\SHE-w03-diagnostics`
+- `F:\SHE-workspace\SHE-w03-diagnostics`
 - branch `codex/w03/diagnostics-ai`
 
-Own only this boundary unless the architecture owner explicitly asks for more:
+Own:
 - `Engine/Diagnostics/*`
 - `Engine/AI/*`
-- diagnostics- or AI-context-related tests
-- minimal coordination docs required by the workflow
+- diagnostics-focused tests
 
 Read first:
-- `docs/ARCHITECTURE.md`
+- `coordination/SESSION_BOOTSTRAP.md`
 - `docs/AI_CONTEXT.md`
-- `docs/MULTI_CODEX_WORKFLOW.md`
 - `docs/MULTI_CODEX_LAUNCH_PLAN.md`
 - `coordination/WORKSTREAMS/W03_diagnostics-ai.md`
-- `coordination/TASK_BOARD.md`
 
 Immediate tasks:
-1. confirm that `W00` has claimed W03 on `main`
-2. improve the first useful version of:
-   - frame and phase tracing
-   - command and event capture
-   - structured authoring context export
-   - diagnostics summaries usable by humans and Codex
-3. keep comments explicit about observability boundaries and performance tradeoffs
-4. add focused tests for exported context and diagnostics lifecycle
-5. create a handoff note in `coordination/HANDOFFS/` before stopping
-6. report status and interface changes back to `W00`
-
-Rules:
-- AI context should describe runtime state, not mutate it
-- diagnostics must help integration rather than becoming log noise
-- if you need new shared hooks in the application loop, keep them small and documented
-- do not assume branch-local edits to coordination files are visible to other windows until merged
-
-Done means:
-- another Codex can inspect context output and understand the running engine
-- diagnostics changes are tested and documented
-- handoff artifacts are complete
+1. confirm W00 has claimed W03 on `main`
+2. improve frame tracing, command/event capture, and authoring context export
+3. keep observability useful rather than noisy
+4. add focused diagnostics tests
+5. write a handoff note before stopping
 ```
 
 ## 9. Startup Prompt For W04
-
-Start this only after the first wave stabilizes.
 
 ```text
 You are the W04 Scripting Host Codex for the SHE repository.
 
 Workspace:
-- worktree `F:\SHE-workspace\SHE-w04-scripting`
+- `F:\SHE-workspace\SHE-w04-scripting`
 - branch `codex/w04/scripting-host`
 
-Own only this boundary unless the architecture owner explicitly asks for more:
+Own:
 - `Engine/Scripting/*`
-- script-host-related tests
-- minimal coordination docs required by the workflow
+- scripting host tests
 
 Read first:
-- `docs/ARCHITECTURE.md`
+- `coordination/SESSION_BOOTSTRAP.md`
 - `docs/AI_NATIVE_REFACTOR.md`
-- `docs/MULTI_CODEX_WORKFLOW.md`
 - `docs/MULTI_CODEX_LAUNCH_PLAN.md`
 - `coordination/WORKSTREAMS/W04_scripting-host.md`
-- `coordination/INTEGRATION_REPORT.md`
 
 Immediate tasks:
-1. confirm W01 and W02 public contracts before implementation
-2. confirm that `W00` has claimed W04 on `main`
-3. implement a stable scripting host boundary that can later back Lua gameplay modules
-4. comment the ownership split between engine-native gameplay and script-owned gameplay
-5. add focused tests and a complete handoff note before stopping
-6. report status and interface changes back to `W00`
+1. confirm W01 and W02 public contracts are stable enough to target
+2. implement a stable script host boundary
+3. document ownership between engine-native gameplay and script-owned gameplay
+4. add focused script-host tests
+5. write a handoff note before stopping
 ```
 
-## 10. Commit Convention
+## 10. Startup Prompt For W05
+
+```text
+You are the W05 Scene + ECS Codex for the SHE repository.
+
+Workspace:
+- `F:\SHE-workspace\SHE-w05-scene`
+- branch `codex/w05/scene-ecs`
+
+Own:
+- `Engine/Scene/*`
+- scene-focused tests
+
+Read first:
+- `coordination/SESSION_BOOTSTRAP.md`
+- `docs/ARCHITECTURE.md`
+- `docs/MULTI_CODEX_LAUNCH_PLAN.md`
+- `coordination/WORKSTREAMS/W05_scene-ecs.md`
+
+Immediate tasks:
+1. confirm W01 and W02 contracts are stable enough to build the world model on
+2. implement entity identity, component storage/query conventions, and scene lifetime rules
+3. keep world ownership clear and heavily commented
+4. add scene lifetime and query tests
+5. write a handoff note before stopping
+```
+
+## 11. Startup Prompt For W06
+
+```text
+You are the W06 Asset Pipeline Codex for the SHE repository.
+
+Workspace:
+- `F:\SHE-workspace\SHE-w06-assets`
+- branch `codex/w06/asset-pipeline`
+
+Own:
+- `Engine/Assets/*`
+- asset-focused tests
+
+Read first:
+- `coordination/SESSION_BOOTSTRAP.md`
+- `docs/TECH_STACK.md`
+- `docs/MULTI_CODEX_LAUNCH_PLAN.md`
+- `coordination/WORKSTREAMS/W06_asset-pipeline.md`
+
+Immediate tasks:
+1. confirm W02 data contracts and W05 scene needs
+2. implement asset IDs, metadata, loader registration, and handle lifetime rules
+3. keep renderer/audio consumers in mind
+4. add focused asset registry tests
+5. write a handoff note before stopping
+```
+
+## 12. Startup Prompt For W07
+
+```text
+You are the W07 Platform + Input Codex for the SHE repository.
+
+Workspace:
+- `F:\SHE-workspace\SHE-w07-platform`
+- branch `codex/w07/platform-input`
+
+Own:
+- `Engine/Platform/*`
+- platform/input tests
+
+Read first:
+- `coordination/SESSION_BOOTSTRAP.md`
+- `docs/TECH_STACK.md`
+- `docs/MULTI_CODEX_LAUNCH_PLAN.md`
+- `coordination/WORKSTREAMS/W07_platform-input.md`
+
+Immediate tasks:
+1. replace the null platform path with the first SDL3-backed window/input layer
+2. keep event pumping, frame timing, and input state explicit
+3. touch shared core files only when absolutely necessary
+4. add focused platform/input smoke tests
+5. write a handoff note before stopping
+```
+
+## 13. Startup Prompt For W08
+
+```text
+You are the W08 Renderer2D Codex for the SHE repository.
+
+Workspace:
+- `F:\SHE-workspace\SHE-w08-renderer`
+- branch `codex/w08/renderer2d`
+
+Own:
+- `Engine/Renderer/*`
+- renderer-focused tests
+
+Read first:
+- `coordination/SESSION_BOOTSTRAP.md`
+- `docs/TECH_STACK.md`
+- `docs/MULTI_CODEX_LAUNCH_PLAN.md`
+- `coordination/WORKSTREAMS/W08_renderer2d.md`
+
+Immediate tasks:
+1. confirm W05, W06, and W07 have stable enough contracts
+2. implement the first real 2D render path with camera and sprite submission
+3. keep renderer ownership boundaries clear around frame begin/end
+4. add focused renderer smoke tests
+5. write a handoff note before stopping
+```
+
+## 14. Startup Prompt For W09
+
+```text
+You are the W09 Physics2D Codex for the SHE repository.
+
+Workspace:
+- `F:\SHE-workspace\SHE-w09-physics`
+- branch `codex/w09/physics2d`
+
+Own:
+- `Engine/Physics/*`
+- physics-focused tests
+
+Read first:
+- `coordination/SESSION_BOOTSTRAP.md`
+- `docs/TECH_STACK.md`
+- `docs/MULTI_CODEX_LAUNCH_PLAN.md`
+- `coordination/WORKSTREAMS/W09_physics2d.md`
+
+Immediate tasks:
+1. confirm W01 and W05 contracts are stable enough for fixed-step integration
+2. implement the first Box2D runtime boundary, body lifecycle, and collision callbacks
+3. keep fixed-step sequencing explicit
+4. add focused physics smoke tests
+5. write a handoff note before stopping
+```
+
+## 15. Startup Prompt For W10
+
+```text
+You are the W10 Audio Runtime Codex for the SHE repository.
+
+Workspace:
+- `F:\SHE-workspace\SHE-w10-audio`
+- branch `codex/w10/audio-runtime`
+
+Own:
+- `Engine/Audio/*`
+- audio-focused tests
+
+Read first:
+- `coordination/SESSION_BOOTSTRAP.md`
+- `docs/TECH_STACK.md`
+- `docs/MULTI_CODEX_LAUNCH_PLAN.md`
+- `coordination/WORKSTREAMS/W10_audio-runtime.md`
+
+Immediate tasks:
+1. confirm W01, W06, and W07 contracts are stable enough for playback integration
+2. implement the first miniaudio-backed playback path
+3. define sound/music asset usage and channel ownership clearly
+4. add focused audio smoke tests
+5. write a handoff note before stopping
+```
+
+## 16. Startup Prompt For W11
+
+```text
+You are the W11 UI + Debug Tools Codex for the SHE repository.
+
+Workspace:
+- `F:\SHE-workspace\SHE-w11-ui-debug`
+- branch `codex/w11/ui-debug`
+
+Own:
+- `Engine/UI/*`
+- debug-tooling tests
+- selected sandbox debug integration
+
+Read first:
+- `coordination/SESSION_BOOTSTRAP.md`
+- `docs/AI_CONTEXT.md`
+- `docs/MULTI_CODEX_LAUNCH_PLAN.md`
+- `coordination/WORKSTREAMS/W11_ui-debug.md`
+
+Immediate tasks:
+1. confirm W03, W08, and W09 expose enough data to inspect
+2. implement the first useful runtime debug surfaces and panels
+3. keep tooling support separate from shipping runtime responsibilities
+4. add focused UI/debug smoke tests
+5. write a handoff note before stopping
+```
+
+## 17. Commit Convention
 
 Use small, reviewable commits.
 
@@ -343,23 +514,20 @@ Examples:
 
 ```text
 feat(gameplay): add typed gameplay event bus
-feat(data): add schema validation result model
-feat(diagnostics): capture frame phase timeline
-feat(ai): enrich authoring context export
-test(gameplay): cover timer dispatch order
-docs(coordination): update W01 handoff and task board
-refactor(core): narrow runtime service dependency
+feat(scene): add entity registry and transform storage
+feat(renderer): add first sprite submission path
+feat(audio): add miniaudio playback stub
+docs(coordination): update W08 handoff and integration report
 ```
 
 Rules:
 
 - one commit should represent one meaningful acceptance slice
-- do not mix `docs(coordination)` with large engine implementation unless the
-  docs are part of the same slice
+- do not mix unrelated modules in one commit
 - commit before handoff if the workstream has reached a stable checkpoint
 - do not rewrite another active Codex branch
 
-## 11. Handoff Convention
+## 18. Handoff Convention
 
 Every workstream must create a handoff file in `coordination/HANDOFFS/`.
 
@@ -372,7 +540,7 @@ YYYY-MM-DD-<workstream-id>-<short-summary>.md
 Example:
 
 ```text
-2026-04-12-w01-gameplay-event-bus.md
+2026-04-13-w08-first-sprite-path.md
 ```
 
 Every handoff must contain:
@@ -387,13 +555,14 @@ Every handoff must contain:
 Minimum close-out sequence:
 
 1. update `coordination/HANDOFFS/...`
-2. update `coordination/TASK_BOARD.md`
-3. update `coordination/STATUS_LEDGER.md`
-4. update `coordination/INTEGRATION_REPORT.md` if shared interfaces changed
+2. report the result back to `W00`
+3. let `W00` update `coordination/TASK_BOARD.md`
+4. let `W00` update `coordination/STATUS_LEDGER.md`
+5. update `coordination/INTEGRATION_REPORT.md` if shared interfaces changed
 
-## 12. Status Rules
+## 19. Status Rules
 
-Use these status transitions only:
+Use these status transitions:
 
 ```text
 ready -> in_progress -> ready_for_integration -> integrated
@@ -402,7 +571,7 @@ ready -> in_progress -> ready_for_integration -> integrated
 Use `blocked` only when the workstream cannot proceed without another module or
 an architecture decision.
 
-## 13. Integration Rule
+## 20. Integration Rule
 
 No workstream is considered complete just because code exists.
 
@@ -410,6 +579,6 @@ It is complete only when:
 
 - code is committed on the workstream branch
 - tests for that slice passed
-- coordination files are updated
 - the handoff is written
-- the integrator can understand the change without reading old chat history
+- `W00` has updated the shared coordination files on `main`
+- the integrator can understand the change without rereading old chat history

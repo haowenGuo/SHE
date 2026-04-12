@@ -58,6 +58,10 @@ and report progress back to `W00`.
 
 ## 5. Current Workstream Boundaries
 
+### Currently created worktrees
+
+These workspaces already exist:
+
 ### W00
 
 - workspace: `F:\SHE-workspace\SHE`
@@ -81,6 +85,25 @@ and report progress back to `W00`.
 - workspace: `F:\SHE-workspace\SHE-w03-diagnostics`
 - branch: `codex/w03/diagnostics-ai`
 - owns: `Engine/Diagnostics/*` and `Engine/AI/*`
+
+### Additional planned workstreams
+
+These are part of the current plan but may not exist as local worktrees yet:
+
+- `W04` Scripting Host
+- `W05` Scene + ECS
+- `W06` Asset Pipeline
+- `W07` Platform + Input
+- `W08` Renderer2D
+- `W09` Physics2D
+- `W10` Audio Runtime
+- `W11` UI + Debug Tools
+
+Their exact branches, worktree names, and startup prompts live in:
+
+- `docs/MULTI_CODEX_LAUNCH_PLAN.md`
+- `coordination/TASK_BOARD.md`
+- `coordination/WORKSTREAMS/`
 
 ## 6. Shared High-Risk Files
 

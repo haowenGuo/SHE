@@ -13,13 +13,36 @@ Track:
 ## Current Summary
 
 - `W00` integrated successfully
-- `W01`, `W02`, and `W03` are the recommended first active parallel batch
+- `W01`, `W02`, and `W03` remain the recommended first-wave launch set
+- `W05`, `W06`, and `W07` define the second-wave runtime spine
+- `W08`, `W09`, and `W10` define the third-wave playable runtime layer
+- `W04` and `W11` should wait until stronger runtime contracts exist
+- `W00/main` remains the source of truth for task status, ledger entries, and integration notes
 
 ## Pending Interface Watchlist
 
 - [RuntimeServices.hpp](../Engine/Core/Include/SHE/Core/RuntimeServices.hpp)
 - [Application.cpp](../Engine/Core/Source/Application.cpp)
 - [Engine/CMakeLists.txt](../Engine/CMakeLists.txt)
+- [CMakeLists.txt](../CMakeLists.txt)
+
+## 2026-04-13 W00 Multi-Wave Freeze
+
+The following rules are frozen for the current launch plan:
+
+- `W01` owns `Engine/Gameplay/*` and may touch shared runtime files only when the gameplay contract cannot be expressed inside its module boundary.
+- `W02` owns `Engine/Data/*` and should keep validation failures structured and machine-readable.
+- `W03` owns `Engine/Diagnostics/*` and `Engine/AI/*` and should treat AI context as read-only with respect to simulation.
+- `W05` owns the world model and should define scene lifetime and component query rules before renderer and physics harden their own contracts.
+- `W06` owns asset identifiers and loader contracts that renderer and audio will consume.
+- `W07` owns the first real platform/input path and should keep shared-loop changes minimal and explicit.
+- `W08` depends on `W05`, `W06`, and `W07` and should not invent hidden scene or asset contracts.
+- `W09` depends on `W01` and `W05` and should keep fixed-step sequencing explicit.
+- `W10` owns the first real audio runtime and should keep playback rules documented and event-friendly.
+- `W11` depends on diagnostics plus runtime surfaces and should not become a dumping ground for missing engine responsibilities.
+- Any change to `RuntimeServices.hpp`, `Application.cpp`, `Engine/CMakeLists.txt`, or `CMakeLists.txt` must be called out in the workstream handoff and reviewed by `W00` before integration.
+- Workstream-local copies of coordination files are not shared state; `W00/main` is the only authoritative coordination surface during active parallel work.
+- Structural interface changes that affect more than one workstream should be recorded in `docs/ARCHITECTURE_DECISIONS.md` before integration.
 
 ## Integration Rules
 
