@@ -116,3 +116,39 @@ Changed Files: coordination/TASK_BOARD.md, coordination/STATUS_LEDGER.md, coordi
 Tests: ctest --preset test-default on SHE-w03-diagnostics (3/3 passed); ctest --preset test-default on main (3/3 passed)
 Next Step: launch W07 Platform + Input immediately, then launch W05 Scene + ECS once W07 loop/input assumptions are documented on main, then launch W06 Asset Pipeline after W05 establishes the world model boundary
 
+Date: 2026-04-13
+Workstream: W07
+Owner: w07-codex
+Status: integrated
+Summary: W00 accepted the SDL3-backed platform/input runtime shell, integrated it onto main as commit c4deb00, and adopted the shared window/input snapshot contract as the runtime baseline for downstream renderer, audio, and UI work.
+Changed Files: Engine/Core/Include/SHE/Core/ApplicationConfig.hpp, Engine/Core/Include/SHE/Core/RuntimeServices.hpp, Engine/Core/Source/Application.cpp, Engine/Platform/*, Game/Source/Main.cpp, Tools/Sandbox/Source/Main.cpp, Tests/CMakeLists.txt, Tests/Source/GameplayContractTests.cpp, Tests/Source/PlatformInputTests.cpp, Tests/Source/SmokeTests.cpp, coordination/HANDOFFS/2026-04-13-w07-platform-input-runtime-shell.md
+Tests: cmake --preset default; cmake --build --preset build-default; ctest --preset test-default on SHE-w07-platform (she_smoke_tests, she_gameplay_contract_tests, she_data_contract_tests, she_platform_input_tests passed)
+Next Step: let W08 and W10 consume the stable IWindowService snapshots instead of reaching into SDL directly
+
+Date: 2026-04-13
+Workstream: W05
+Owner: w05-codex
+Status: integrated
+Summary: W00 accepted the first-pass scene/ECS world boundary, integrated it onto main as commit d51b46e, and established the shared entity lifetime/query baseline for renderer and physics follow-on work.
+Changed Files: Engine/Core/Include/SHE/Core/RuntimeServices.hpp, Engine/Scene/*, Tests/CMakeLists.txt, Tests/Source/SceneContractTests.cpp, coordination/HANDOFFS/2026-04-13-w05-scene-ecs-world-boundary.md
+Tests: cmake --preset default; cmake --build --preset build-default; ctest --preset test-default on SHE-w05-scene (she_smoke_tests, she_gameplay_contract_tests, she_data_contract_tests, she_scene_contract_tests passed)
+Next Step: let W08 and W09 build on ListEntities, TryGetEntityView, and deferred destroy semantics rather than depending on SceneWorld internals
+
+Date: 2026-04-13
+Workstream: W06
+Owner: w06-codex
+Status: integrated
+Summary: W00 accepted the asset registry/loader/handle contract slice, integrated it onto main as commit 359b7a1, and adopted the stable asset identity and lease-style lifetime baseline for renderer and audio consumers.
+Changed Files: Engine/Core/Include/SHE/Core/RuntimeServices.hpp, Engine/Assets/*, Engine/AI/Source/AuthoringAiService.cpp, Game/Features/Bootstrap/BootstrapFeatureLayer.cpp, Tests/CMakeLists.txt, Tests/Source/AssetContractTests.cpp, Tests/Source/SmokeTests.cpp, docs/AI_CONTEXT.md, coordination/HANDOFFS/2026-04-13-w06-asset-pipeline-slice.md
+Tests: cmake --preset default; cmake --build --preset build-default; ctest --preset test-default on SHE-w06-assets (she_smoke_tests, she_gameplay_contract_tests, she_data_contract_tests, she_asset_contract_tests passed)
+Next Step: let W08 and W10 consume AssetId, AssetMetadata, ResolveLoader, and AssetHandle before introducing backend-specific resource views
+
+Date: 2026-04-13
+Workstream: W00
+Owner: current-codex
+Status: integrated
+Summary: Completed the runtime-spine system acceptance pass. W05, W06, and W07 are now integrated on main, the combined runtime baseline builds and tests cleanly as a single branch, and the project can formally enter the playable-runtime wave.
+Changed Files: coordination/TASK_BOARD.md, coordination/STATUS_LEDGER.md, coordination/INTEGRATION_REPORT.md, coordination/NEXT_PHASE_PLAYABLE_RUNTIME_LAUNCH.md
+Tests: cmake --preset default on main; cmake --build --preset build-default on main; ctest --preset test-default on main (she_smoke_tests, she_gameplay_contract_tests, she_data_contract_tests, she_platform_input_tests, she_scene_contract_tests, she_asset_contract_tests passed)
+Next Step: launch W08 Renderer2D, W09 Physics2D, and W10 Audio Runtime as the third-wave playable-runtime workstreams; W04 can move into a lower-priority authoring track now that the runtime spine is real
+

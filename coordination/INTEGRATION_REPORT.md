@@ -17,10 +17,13 @@ Track:
 - `W01` is integrated on `main` and now defines the gameplay public-contract baseline for downstream runtime workstreams
 - `W02` is integrated on `main` as commit `1202779` and now defines the accepted data-contract baseline for downstream runtime workstreams
 - `W03` is integrated on `main` as commit `6b13173` and now defines the accepted diagnostics and AI-context baseline layered on top of the W01 and W02 foundations
-- the first-wave foundation is complete on `main`, and the project can now begin the core runtime-wave implementation stage
-- `W05`, `W06`, and `W07` define the second-wave runtime spine
-- `W08`, `W09`, and `W10` define the third-wave playable runtime layer
-- `W04` and `W11` should wait until stronger runtime contracts exist
+- `W07` is integrated on `main` as commit `c4deb00` and now defines the accepted SDL3 window/input runtime shell baseline
+- `W05` is integrated on `main` as commit `d51b46e` and now defines the accepted scene/entity lifetime and query baseline
+- `W06` is integrated on `main` as commit `359b7a1` and now defines the accepted asset id/metadata/loader/handle baseline
+- the runtime spine is now complete on `main`, and the project can formally begin the playable-runtime implementation stage
+- `W08`, `W09`, and `W10` are now the active next-wave workstreams
+- `W04` can now move into a lower-priority authoring track because the runtime spine contracts are real on `main`
+- `W11` should still wait until renderer and physics expose stronger runtime surfaces to inspect
 - `W00/main` remains the source of truth for task status, ledger entries, and integration notes
 
 ## Pending Interface Watchlist
@@ -79,12 +82,18 @@ artifacts:
 - `coordination/WORKSTREAMS/W02_closeout-directive.md`
 - `coordination/WORKSTREAMS/W03_closeout-directive.md`
 
-Recommended integration order:
+Integrated runtime-spine checkpoints:
 
-1. launch `W07` Platform + Input as the first active core-runtime workstream
-2. launch `W05` Scene + ECS after W07 documents loop/input assumptions on `main`
-3. launch `W06` Asset Pipeline after W05 establishes the world-model boundary
-4. hold `W08`, `W09`, `W10`, and `W11` until the runtime spine contracts stabilize
+- `W07` integrated as `c4deb00`
+- `W05` integrated as `d51b46e`
+- `W06` integrated as `359b7a1`
+
+Recommended next launch order:
+
+1. launch `W08` Renderer2D first so the accepted scene, asset, and platform contracts become visibly executable on the main runtime path
+2. launch `W09` Physics2D second so fixed-step world updates can settle against the accepted scene boundary and the already integrated gameplay contracts
+3. launch `W10` Audio Runtime third because it depends on the accepted asset and platform baselines but can safely trail the first visible runtime proof by a small margin
+4. keep `W04` as an optional lower-priority authoring track and hold `W11` until renderer and physics have something substantive to inspect
 
 ## Integration Rules
 
