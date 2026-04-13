@@ -67,3 +67,20 @@ target_link_libraries(she_renderer_contract_tests PRIVATE she_engine_renderer sh
 she_configure_target(she_renderer_contract_tests)
 
 add_test(NAME she_renderer_contract_tests COMMAND she_renderer_contract_tests)
+
+add_executable(
+    she_physics_contract_tests
+    Source/PhysicsContractTests.cpp
+)
+
+target_link_libraries(
+    she_physics_contract_tests
+    PRIVATE
+        she_engine_physics
+        she_engine_scene
+        she_engine_gameplay
+        she_engine_core
+)
+she_configure_target(she_physics_contract_tests)
+
+add_test(NAME she_physics_contract_tests COMMAND she_physics_contract_tests)

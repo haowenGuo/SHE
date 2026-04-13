@@ -14,6 +14,11 @@ class NullPhysicsService final : public IPhysicsService
 public:
     void Initialize() override;
     void Shutdown() override;
+    bool CreateBody(EntityId entityId, const PhysicsBodyDefinition& definition) override;
+    bool DestroyBody(EntityId entityId) override;
+    [[nodiscard]] bool HasBody(EntityId entityId) const override;
+    [[nodiscard]] PhysicsColliderId CreateBoxCollider(EntityId entityId, const PhysicsBoxColliderDefinition& definition) override;
+    bool DestroyCollider(PhysicsColliderId colliderId) override;
     void Step(double fixedTimeStep) override;
 
     [[nodiscard]] std::size_t GetStepCount() const;

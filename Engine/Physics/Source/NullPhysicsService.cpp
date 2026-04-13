@@ -16,6 +16,31 @@ void NullPhysicsService::Shutdown()
     SHE_LOG_INFO("Physics", "Null physics service shutdown complete.");
 }
 
+bool NullPhysicsService::CreateBody(const EntityId, const PhysicsBodyDefinition&)
+{
+    return false;
+}
+
+bool NullPhysicsService::DestroyBody(const EntityId)
+{
+    return false;
+}
+
+bool NullPhysicsService::HasBody(const EntityId) const
+{
+    return false;
+}
+
+PhysicsColliderId NullPhysicsService::CreateBoxCollider(const EntityId, const PhysicsBoxColliderDefinition&)
+{
+    return kInvalidPhysicsColliderId;
+}
+
+bool NullPhysicsService::DestroyCollider(const PhysicsColliderId)
+{
+    return false;
+}
+
 void NullPhysicsService::Step(const double fixedTimeStep)
 {
     ++m_stepCount;

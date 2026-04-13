@@ -384,6 +384,41 @@ struct RenderFrameSnapshot
     std::size_t visiblePixelSampleCount = 0;
 };
 
+using PhysicsColliderId = std::uint64_t;
+
+constexpr PhysicsColliderId kInvalidPhysicsColliderId = 0;
+
+enum class PhysicsBodyType
+{
+    Static,
+    Kinematic,
+    Dynamic
+};
+
+struct PhysicsBodyDefinition
+{
+    PhysicsBodyType bodyType = PhysicsBodyType::Static;
+    Vector2 linearVelocity{};
+    float angularVelocityDegrees = 0.0F;
+    float linearDamping = 0.0F;
+    float angularDamping = 0.0F;
+    float gravityScale = 1.0F;
+    bool fixedRotation = false;
+    bool isBullet = false;
+    bool allowSleep = true;
+};
+
+struct PhysicsBoxColliderDefinition
+{
+    Vector2 halfExtents{0.5F, 0.5F};
+    Vector2 offset{};
+    float rotationDegrees = 0.0F;
+    float density = 1.0F;
+    float friction = 0.2F;
+    float restitution = 0.0F;
+    bool isSensor = false;
+};
+
 class ISceneService
 {
 public:
@@ -518,6 +553,13 @@ public:
 
     virtual void Initialize() = 0;
     virtual void Shutdown() = 0;
+    // Bodies are keyed by scene entity id so W09 can consume W05's query
+    // surface instead of depending on SceneWorld storage internals.
+    virtual bool CreateBody(EntityId entityId, const PhysicsBodyDefinition& definition) = 0;
+    virtual bool DestroyBody(EntityId entityId) = 0;
+    virtual bool HasBody(EntityId entityId) const = 0;
+    virtual PhysicsColliderId CreateBoxCollider(EntityId entityId, const PhysicsBoxColliderDefinition& definition) = 0;
+    virtual bool DestroyCollider(PhysicsColliderId colliderId) = 0;
     virtual void Step(double fixedTimeStep) = 0;
 };
 

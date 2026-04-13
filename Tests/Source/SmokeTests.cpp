@@ -7,7 +7,7 @@
 #include "SHE/Data/DataService.hpp"
 #include "SHE/Diagnostics/DiagnosticsService.hpp"
 #include "SHE/Gameplay/GameplayService.hpp"
-#include "SHE/Physics/NullPhysicsService.hpp"
+#include "SHE/Physics/Box2DPhysicsService.hpp"
 #include "SHE/Platform/SdlWindowService.hpp"
 #include "SHE/Reflection/ReflectionService.hpp"
 #include "SHE/Renderer/Renderer2DService.hpp"
@@ -364,7 +364,7 @@ she::RuntimeServices CreateTestRuntime()
     services.data = std::make_shared<she::DataService>();
     services.gameplay = std::make_shared<she::GameplayService>();
     services.renderer = std::make_shared<she::Renderer2DService>(services.assets, services.window);
-    services.physics = std::make_shared<she::NullPhysicsService>();
+    services.physics = std::make_shared<she::Box2DPhysicsService>(services.scene, services.gameplay);
     services.audio = std::make_shared<she::NullAudioService>();
     services.ui = std::make_shared<she::NullUiService>();
     services.scripting = std::make_shared<she::ScriptingService>();
