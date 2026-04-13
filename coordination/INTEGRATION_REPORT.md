@@ -15,7 +15,9 @@ Track:
 - `W00` integrated successfully
 - `W01`, `W02`, and `W03` remain the recommended first-wave launch set
 - `W01` is integrated on `main` and now defines the gameplay public-contract baseline for downstream runtime workstreams
-- `W02` and `W03` both passed standalone configure/build/test, but they are not yet integration-ready as a pair because they overlap in AI context and smoke-test surfaces
+- `W02` and `W03` both passed standalone configure/build/test, but they are not yet phase-complete on `main`
+- `W02` currently holds the richer schema-validation and load-contract implementation on its own branch, while `W03` currently holds the richer diagnostics and AI-context implementation on its own branch
+- `W03` still diverges from the richer W02 data-contract surface, so integrating it as-is would collapse `IDataService` back to a narrower schema-registry API
 - `W05`, `W06`, and `W07` define the second-wave runtime spine
 - `W08`, `W09`, and `W10` define the third-wave playable runtime layer
 - `W04` and `W11` should wait until stronger runtime contracts exist
@@ -74,13 +76,18 @@ Open integration blockers:
   - `Tests/Source/SmokeTests.cpp`
 - `W03` smoke tests still use the pre-W02 `IDataService::RegisterSchema(...)` shape, so the branch must be rebased or manually merged after the W02 data contract lands.
 - `W02` and `W03` should rebase onto the integrated W01 gameplay baseline before additional cross-module work continues.
+- `W02` has not yet checkpointed its accepted slice as a branch commit after the latest acceptance pass.
+- `W03` has not yet checkpointed its final merged slice as a branch commit after the latest acceptance pass.
+- `W03` currently exposes the narrower `IDataService` surface (`RegisterSchema(string, description, requiredFields)`) rather than the richer W02 load/validation contract, so the combined data+diagnostics integration still needs one explicit owner-driven merge.
 
 Recommended integration order:
 
 1. integrate `W01`
-2. harmonize `W02` and `W03` on one branch or through a W00 merge pass
-3. re-run configure/build/test after the merged AI-context and smoke-test surface is settled
-4. only then mark `W02` and `W03` as `ready_for_integration`
+2. have `W02` checkpoint the data-contract branch as a reviewable commit
+3. have `W03` rebase onto that accepted W02 surface and keep ownership of diagnostics, AI-context export, `Application.cpp`, and smoke-test merge resolution
+4. re-run configure/build/test after the merged AI-context and smoke-test surface is settled
+5. only then mark `W02` and `W03` as `ready_for_integration`
+6. after W02/W03 are integrated on `main`, start the core runtime wave in this order: `W07` first, `W05` second, `W06` third
 
 ## Integration Rules
 
