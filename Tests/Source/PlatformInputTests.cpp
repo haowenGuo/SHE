@@ -47,9 +47,13 @@ bool TestWindowLifecycleAndCloseSignal()
     bool success = true;
 
     const she::WindowState initialState = window.GetWindowState();
+    const she::NativeWindowHandle nativeHandle = window.GetNativeWindowHandle();
     success &= Expect(initialState.windowId != 0, "Expected SDL window initialization to produce a native window id.");
     success &= Expect(initialState.width == 640, "Expected SDL window width to match the application config.");
     success &= Expect(initialState.height == 360, "Expected SDL window height to match the application config.");
+    success &= Expect(
+        nativeHandle.backend == she::NativeWindowBackend::Sdl3 && nativeHandle.handle != nullptr,
+        "Expected SDL window initialization to publish a valid SDL native window handle.");
     success &= Expect(window.GetPumpCount() == 0, "Expected no event pumps before the first platform tick.");
     success &= Expect(!window.ShouldClose(), "Expected the hidden SDL test window to start open.");
 

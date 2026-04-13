@@ -58,6 +58,11 @@ WindowState NullWindowService::GetWindowState() const
     return m_windowState;
 }
 
+NativeWindowHandle NullWindowService::GetNativeWindowHandle() const
+{
+    return {};
+}
+
 std::size_t NullWindowService::GetPumpCount() const
 {
     return m_pumpCount;

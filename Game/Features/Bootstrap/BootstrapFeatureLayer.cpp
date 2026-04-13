@@ -14,6 +14,12 @@ void BootstrapFeatureLayer::OnAttach(RuntimeServices& services)
         "Implement gameplay as small Game/Features modules that register schemas, script hooks, and gameplay commands.");
 
     services.scene->SetActiveScene("BootstrapArena");
+    services.assets->RegisterLoader(
+        AssetLoaderDescriptor{
+            "texture_placeholder",
+            "texture",
+            {".placeholder", ".png"},
+            "Bootstrap placeholder loader for the first renderer path."});
     services.assets->RegisterAsset(
         AssetMetadata{
             kInvalidAssetId,
@@ -42,6 +48,11 @@ void BootstrapFeatureLayer::OnAttach(RuntimeServices& services)
                 {"trigger", "player_fire"},
                 {"usage", "combat"},
             }});
+    services.renderer->RegisterMaterial(
+        Material2DDescriptor{
+            "materials/bootstrap.player",
+            "textures/player_idle",
+            Color{1.0F, 1.0F, 1.0F, 1.0F}});
 
     services.reflection->RegisterType("component", "TransformComponent", "Spatial transform for 2D entities.");
     services.reflection->RegisterType("service", "GameplayService", "Central event, command, and timer runtime.");
@@ -102,7 +113,19 @@ void BootstrapFeatureLayer::OnAttach(RuntimeServices& services)
     services.gameplay->QueueEvent("feature", "BootstrapAttached", "Bootstrap feature registered its contracts.");
 
     m_playerEntityId = services.scene->CreateEntity("Player");
-    services.scene->CreateEntity("MainCamera");
+    m_cameraEntityId = services.scene->CreateEntity("MainCamera");
+    services.scene->TrySetEntityTransform(
+        m_playerEntityId,
+        SceneTransform{
+            Vector2{2.0F, 1.0F},
+            0.0F,
+            Vector2{2.0F, 2.0F}});
+    services.scene->TrySetEntityTransform(
+        m_cameraEntityId,
+        SceneTransform{
+            Vector2{0.0F, 0.0F},
+            0.0F,
+            Vector2{1.0F, 1.0F}});
 
     SHE_LOG_INFO("Game", "Bootstrap feature layer attached.");
 }
@@ -145,6 +168,38 @@ void BootstrapFeatureLayer::OnUpdate(const TickContext& context)
             "SpawnEncounter",
             "encounter=bootstrap_room_a; enemy=training_dummy; count=1; trigger=spawn_pulse");
     }
+}
+
+void BootstrapFeatureLayer::OnRender(const TickContext& context)
+{
+    SceneEntityView playerView;
+    SceneEntityView cameraView;
+    if (!context.services.scene->TryGetEntityView(m_playerEntityId, playerView) ||
+        !context.services.scene->TryGetEntityView(m_cameraEntityId, cameraView))
+    {
+        return;
+    }
+
+    const WindowState windowState = context.services.window->GetWindowState();
+    context.services.renderer->SubmitCamera(
+        Camera2DSubmission{
+            m_cameraEntityId,
+            cameraView.entityName,
+            cameraView.transform.position,
+            1.0F,
+            windowState.width,
+            windowState.height,
+            Color{0.08F, 0.10F, 0.14F, 1.0F}});
+    context.services.renderer->SubmitSprite(
+        Sprite2DSubmission{
+            m_playerEntityId,
+            playerView.entityName,
+            "materials/bootstrap.player",
+            playerView.transform.position,
+            playerView.transform.rotationDegrees,
+            playerView.transform.scale,
+            Color{1.0F, 1.0F, 1.0F, 1.0F},
+            0});
 }
 
 void BootstrapFeatureLayer::OnDetach(RuntimeServices& services)

@@ -12,7 +12,7 @@
 #include "SHE/Physics/NullPhysicsService.hpp"
 #include "SHE/Platform/SdlWindowService.hpp"
 #include "SHE/Reflection/ReflectionService.hpp"
-#include "SHE/Renderer/NullRendererService.hpp"
+#include "SHE/Renderer/Renderer2DService.hpp"
 #include "SHE/Scene/SceneWorld.hpp"
 #include "SHE/Scripting/ScriptingService.hpp"
 #include "SHE/UI/NullUiService.hpp"
@@ -30,7 +30,7 @@ she::RuntimeServices CreateSandboxRuntime()
     services.reflection = std::make_shared<she::ReflectionService>();
     services.data = std::make_shared<she::DataService>();
     services.gameplay = std::make_shared<she::GameplayService>();
-    services.renderer = std::make_shared<she::NullRendererService>();
+    services.renderer = std::make_shared<she::Renderer2DService>(services.assets, services.window);
     services.physics = std::make_shared<she::NullPhysicsService>();
     services.audio = std::make_shared<she::NullAudioService>();
     services.ui = std::make_shared<she::NullUiService>();

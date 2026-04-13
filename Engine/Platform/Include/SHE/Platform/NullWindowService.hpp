@@ -20,6 +20,7 @@ public:
     [[nodiscard]] ButtonState GetPointerButtonState(PointerButton button) const override;
     [[nodiscard]] PointerState GetPointerState() const override;
     [[nodiscard]] WindowState GetWindowState() const override;
+    [[nodiscard]] NativeWindowHandle GetNativeWindowHandle() const override;
     [[nodiscard]] std::size_t GetPumpCount() const override;
     void Shutdown() override;
 

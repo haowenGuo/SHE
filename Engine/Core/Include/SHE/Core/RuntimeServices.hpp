@@ -179,6 +179,23 @@ struct WindowState
     bool resizedThisFrame = false;
 };
 
+enum class NativeWindowBackend
+{
+    None,
+    Sdl3
+};
+
+struct NativeWindowHandle
+{
+    NativeWindowBackend backend = NativeWindowBackend::None;
+    void* handle = nullptr;
+
+    [[nodiscard]] bool IsValid() const
+    {
+        return backend != NativeWindowBackend::None && handle != nullptr;
+    }
+};
+
 struct AssetMetadataProperty
 {
     std::string key;
@@ -245,6 +262,7 @@ public:
     virtual ButtonState GetPointerButtonState(PointerButton button) const = 0;
     virtual PointerState GetPointerState() const = 0;
     virtual WindowState GetWindowState() const = 0;
+    virtual NativeWindowHandle GetNativeWindowHandle() const = 0;
     virtual std::size_t GetPumpCount() const = 0;
     virtual void Shutdown() = 0;
 };
@@ -291,6 +309,81 @@ struct SceneEntityView
     SceneTransform transform;
 };
 
+struct Camera2DSubmission
+{
+    EntityId entityId = kInvalidEntityId;
+    std::string cameraName;
+    Vector2 worldCenter{};
+    float zoom = 1.0F;
+    int viewportWidth = 0;
+    int viewportHeight = 0;
+    Color clearColor{};
+};
+
+struct Sprite2DSubmission
+{
+    EntityId entityId = kInvalidEntityId;
+    std::string entityName;
+    std::string materialName;
+    Vector2 position{};
+    float rotationDegrees = 0.0F;
+    Vector2 size{1.0F, 1.0F};
+    Color tint{};
+    int sortKey = 0;
+};
+
+struct Material2DDescriptor
+{
+    std::string materialName;
+    std::string textureAssetName;
+    Color tint{};
+};
+
+struct ResolvedMaterial2D
+{
+    std::string materialName;
+    std::string textureAssetName;
+    AssetId textureAssetId = kInvalidAssetId;
+    std::string textureSourcePath;
+    std::string resolvedLoaderKey;
+    Color tint{};
+};
+
+struct RenderedSprite2D
+{
+    EntityId entityId = kInvalidEntityId;
+    std::string entityName;
+    ResolvedMaterial2D material;
+    Vector2 position{};
+    float rotationDegrees = 0.0F;
+    Vector2 size{1.0F, 1.0F};
+    Color tint{};
+    int sortKey = 0;
+};
+
+struct RendererBackendInfo
+{
+    std::string backendName;
+    int defaultSurfaceWidth = 0;
+    int defaultSurfaceHeight = 0;
+    bool supportsMaterialLookup = false;
+    bool supportsFrameCapture = false;
+};
+
+struct RenderFrameSnapshot
+{
+    FrameIndex frameIndex = 0;
+    std::string backendName;
+    std::string sceneName;
+    std::size_t sceneEntityCount = 0;
+    int surfaceWidth = 0;
+    int surfaceHeight = 0;
+    std::optional<Camera2DSubmission> camera;
+    std::vector<RenderedSprite2D> sprites;
+    bool presentedToSurface = false;
+    std::size_t visiblePixelSampleCount = 0;
+};
+
 class ISceneService
 {
 public:
@@ -321,7 +414,15 @@ public:
     virtual void Initialize(const ApplicationConfig& config) = 0;
     virtual void Shutdown() = 0;
     virtual void BeginFrame(FrameIndex frameIndex) = 0;
+    virtual void RegisterMaterial(Material2DDescriptor descriptor) = 0;
+    virtual bool HasMaterial(std::string_view materialName) const = 0;
+    virtual std::optional<ResolvedMaterial2D> ResolveMaterial(std::string_view materialName) const = 0;
+    virtual bool SubmitCamera(const Camera2DSubmission& camera) = 0;
+    virtual bool SubmitSprite(const Sprite2DSubmission& sprite) = 0;
     virtual void SubmitSceneSnapshot(std::string_view sceneName, std::size_t entityCount) = 0;
+    virtual bool HasFrameInFlight() const = 0;
+    virtual std::optional<RenderFrameSnapshot> GetLastCompletedFrame() const = 0;
+    virtual RendererBackendInfo GetBackendInfo() const = 0;
     virtual void EndFrame() = 0;
 };
 

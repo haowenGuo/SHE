@@ -10,7 +10,7 @@
 #include "SHE/Physics/NullPhysicsService.hpp"
 #include "SHE/Platform/SdlWindowService.hpp"
 #include "SHE/Reflection/ReflectionService.hpp"
-#include "SHE/Renderer/NullRendererService.hpp"
+#include "SHE/Renderer/Renderer2DService.hpp"
 #include "SHE/Scene/SceneWorld.hpp"
 #include "SHE/Scripting/ScriptingService.hpp"
 #include "SHE/UI/NullUiService.hpp"
@@ -123,10 +123,27 @@ public:
             textureLoader.has_value() && textureLoader->loaderKey == "texture_placeholder";
         audioLoaderResolvedAfterAttach =
             audioLoader.has_value() && audioLoader->loaderKey == "audio_placeholder";
+        playerTextureAssetId = playerTextureId;
         const she::AssetHandle smokeHandle = services.assets->AcquireAsset(playerTextureId);
         liveHandleCountDuringAttach = services.assets->GetLiveHandleCount(playerTextureId);
         services.assets->ReleaseAsset(smokeHandle);
         liveHandleCountAfterRelease = services.assets->GetLiveHandleCount(playerTextureId);
+
+        services.renderer->RegisterMaterial(
+            she::Material2DDescriptor{
+                "materials/tests.player",
+                "textures/player_idle",
+                she::Color{1.0F, 1.0F, 1.0F, 1.0F}});
+        hasPlayerMaterialAfterAttach = services.renderer->HasMaterial("materials/tests.player");
+        const auto resolvedPlayerMaterial = services.renderer->ResolveMaterial("materials/tests.player");
+        playerMaterialResolvedAfterAttach =
+            resolvedPlayerMaterial.has_value() && resolvedPlayerMaterial->textureAssetId == playerTextureId &&
+            resolvedPlayerMaterial->resolvedLoaderKey == "texture_placeholder";
+        const she::RendererBackendInfo backendInfo = services.renderer->GetBackendInfo();
+        rendererBackendReadyAfterAttach =
+            backendInfo.backendName.starts_with("sdl3/") && backendInfo.supportsMaterialLookup &&
+            backendInfo.supportsFrameCapture;
+        rendererBackendName = backendInfo.backendName;
 
         services.reflection->RegisterFeature(
             "SmokeTestFeature",
@@ -195,6 +212,22 @@ public:
             {"SmokeFrameCommand", "Confirms per-frame command routing remains visible in diagnostics.", "tests", "SmokeFrameRequested"});
         services.gameplay->CreateTimer("tests.smoke.timer", 0.05, false);
         services.gameplay->QueueCommand("SmokeTestCommand", "payload=ok");
+
+        services.scene->SetActiveScene("SmokeScene");
+        cameraEntityId = services.scene->CreateEntity("SmokeCamera");
+        playerEntityId = services.scene->CreateEntity("SmokePlayer");
+        cameraTransformWritten = services.scene->TrySetEntityTransform(
+            cameraEntityId,
+            she::SceneTransform{
+                she::Vector2{0.0F, 0.0F},
+                0.0F,
+                she::Vector2{1.0F, 1.0F}});
+        playerTransformWritten = services.scene->TrySetEntityTransform(
+            playerEntityId,
+            she::SceneTransform{
+                she::Vector2{4.0F, 2.0F},
+                12.0F,
+                she::Vector2{2.0F, 3.0F}});
     }
 
     void OnFixedUpdate(const she::TickContext&) override
@@ -210,9 +243,43 @@ public:
         context.services.gameplay->QueueCommand("SmokeFrameCommand", frameLabel);
     }
 
-    void OnRender(const she::TickContext&) override
+    void OnRender(const she::TickContext& context) override
     {
         ++renderCount;
+
+        she::SceneEntityView cameraView;
+        she::SceneEntityView playerView;
+        observedCameraEntityInRender = context.services.scene->TryGetEntityView(cameraEntityId, cameraView);
+        observedPlayerEntityInRender = context.services.scene->TryGetEntityView(playerEntityId, playerView);
+
+        if (!observedCameraEntityInRender || !observedPlayerEntityInRender)
+        {
+            return;
+        }
+
+        const she::WindowState windowState = context.services.window->GetWindowState();
+        acceptedCameraSubmission = context.services.renderer->SubmitCamera(
+                                       she::Camera2DSubmission{
+                                           cameraEntityId,
+                                           cameraView.entityName,
+                                           cameraView.transform.position,
+                                           1.0F,
+                                           windowState.width,
+                                           windowState.height,
+                                           she::Color{0.05F, 0.08F, 0.12F, 1.0F}}) ||
+                                   acceptedCameraSubmission;
+        acceptedSpriteSubmission = context.services.renderer->SubmitSprite(
+                                       she::Sprite2DSubmission{
+                                           playerEntityId,
+                                           playerView.entityName,
+                                           "materials/tests.player",
+                                           playerView.transform.position,
+                                           playerView.transform.rotationDegrees,
+                                           playerView.transform.scale,
+                                           she::Color{1.0F, 0.95F, 0.95F, 1.0F},
+                                           10}) ||
+                                   acceptedSpriteSubmission;
+        liveTextureHandleCountDuringRender = context.services.assets->GetLiveHandleCount(playerTextureAssetId);
     }
 
     void OnUi(const she::TickContext&) override
@@ -230,6 +297,8 @@ public:
         observedSchemaCount = services.data->ListSchemas().size();
         observedRecordCount = services.data->GetRecordCount();
         observedTrustedRecordCount = services.data->GetTrustedRecordCount();
+        lastCompletedRenderFrame = services.renderer->GetLastCompletedFrame();
+        liveTextureHandleCountAfterRender = services.assets->GetLiveHandleCount(playerTextureAssetId);
     }
 
     int attachCount = 0;
@@ -241,8 +310,13 @@ public:
     std::size_t aiContextVersion = 0;
     std::size_t aiContextLength = 0;
     std::size_t observedAssetCountAfterAttach = 0;
+    she::AssetId playerTextureAssetId = she::kInvalidAssetId;
+    she::EntityId playerEntityId = she::kInvalidEntityId;
+    she::EntityId cameraEntityId = she::kInvalidEntityId;
     std::size_t liveHandleCountDuringAttach = 0;
     std::size_t liveHandleCountAfterRelease = 0;
+    std::size_t liveTextureHandleCountDuringRender = 0;
+    std::size_t liveTextureHandleCountAfterRender = 0;
     std::size_t observedSchemaCountAfterAttach = 0;
     std::size_t observedRecordCountAfterAttach = 0;
     std::size_t observedTrustedRecordCountAfterAttach = 0;
@@ -258,6 +332,15 @@ public:
     bool hasAudioLoaderAfterAttach = false;
     bool textureLoaderResolvedAfterAttach = false;
     bool audioLoaderResolvedAfterAttach = false;
+    bool hasPlayerMaterialAfterAttach = false;
+    bool playerMaterialResolvedAfterAttach = false;
+    bool rendererBackendReadyAfterAttach = false;
+    bool cameraTransformWritten = false;
+    bool playerTransformWritten = false;
+    bool observedCameraEntityInRender = false;
+    bool observedPlayerEntityInRender = false;
+    bool acceptedCameraSubmission = false;
+    bool acceptedSpriteSubmission = false;
     bool hasTrustedFeatureRecordAfterAttach = false;
     bool hasTrustedEncounterRecordAfterAttach = false;
     bool featureLoadParsed = false;
@@ -265,8 +348,10 @@ public:
     bool encounterLoadParsed = false;
     bool encounterLoadValid = false;
     std::size_t encounterIssueCount = 0;
+    std::string rendererBackendName;
     std::string aiContext;
     std::string latestDiagnosticsReport;
+    std::optional<she::RenderFrameSnapshot> lastCompletedRenderFrame;
 };
 
 she::RuntimeServices CreateTestRuntime()
@@ -278,7 +363,7 @@ she::RuntimeServices CreateTestRuntime()
     services.reflection = std::make_shared<she::ReflectionService>();
     services.data = std::make_shared<she::DataService>();
     services.gameplay = std::make_shared<she::GameplayService>();
-    services.renderer = std::make_shared<she::NullRendererService>();
+    services.renderer = std::make_shared<she::Renderer2DService>(services.assets, services.window);
     services.physics = std::make_shared<she::NullPhysicsService>();
     services.audio = std::make_shared<she::NullAudioService>();
     services.ui = std::make_shared<she::NullUiService>();
@@ -345,6 +430,70 @@ int main(int, char**)
         std::cerr << "Audio loader resolved: " << (layerPtr->audioLoaderResolvedAfterAttach ? "true" : "false") << '\n';
         std::cerr << "Live handle count during attach: " << layerPtr->liveHandleCountDuringAttach << '\n';
         std::cerr << "Live handle count after release: " << layerPtr->liveHandleCountAfterRelease << '\n';
+        return 1;
+    }
+
+    if (!layerPtr->rendererBackendReadyAfterAttach || !layerPtr->rendererBackendName.starts_with("sdl3/") ||
+        !layerPtr->hasPlayerMaterialAfterAttach || !layerPtr->playerMaterialResolvedAfterAttach ||
+        !layerPtr->cameraTransformWritten || !layerPtr->playerTransformWritten)
+    {
+        std::cerr << "Renderer bootstrap did not expose the expected backend/material baseline.\n";
+        std::cerr << "Renderer backend ready: " << (layerPtr->rendererBackendReadyAfterAttach ? "true" : "false") << '\n';
+        std::cerr << "Renderer backend name: " << layerPtr->rendererBackendName << '\n';
+        std::cerr << "Has player material: " << (layerPtr->hasPlayerMaterialAfterAttach ? "true" : "false") << '\n';
+        std::cerr << "Player material resolved: " << (layerPtr->playerMaterialResolvedAfterAttach ? "true" : "false") << '\n';
+        std::cerr << "Camera transform written: " << (layerPtr->cameraTransformWritten ? "true" : "false") << '\n';
+        std::cerr << "Player transform written: " << (layerPtr->playerTransformWritten ? "true" : "false") << '\n';
+        return 1;
+    }
+
+    if (!layerPtr->observedCameraEntityInRender || !layerPtr->observedPlayerEntityInRender ||
+        !layerPtr->acceptedCameraSubmission || !layerPtr->acceptedSpriteSubmission ||
+        layerPtr->liveTextureHandleCountDuringRender != 1 || layerPtr->liveTextureHandleCountAfterRender != 0 ||
+        !layerPtr->lastCompletedRenderFrame.has_value())
+    {
+        std::cerr << "Renderer did not preserve the expected frame ownership and scene submission path.\n";
+        std::cerr << "Observed camera entity in render: " << (layerPtr->observedCameraEntityInRender ? "true" : "false") << '\n';
+        std::cerr << "Observed player entity in render: " << (layerPtr->observedPlayerEntityInRender ? "true" : "false") << '\n';
+        std::cerr << "Accepted camera submission: " << (layerPtr->acceptedCameraSubmission ? "true" : "false") << '\n';
+        std::cerr << "Accepted sprite submission: " << (layerPtr->acceptedSpriteSubmission ? "true" : "false") << '\n';
+        std::cerr << "Live texture handles during render: " << layerPtr->liveTextureHandleCountDuringRender << '\n';
+        std::cerr << "Live texture handles after render: " << layerPtr->liveTextureHandleCountAfterRender << '\n';
+        std::cerr << "Completed frame captured: " << (layerPtr->lastCompletedRenderFrame.has_value() ? "true" : "false") << '\n';
+        return 1;
+    }
+
+    const she::RenderFrameSnapshot& renderFrame = *layerPtr->lastCompletedRenderFrame;
+    if (!renderFrame.backendName.starts_with("sdl3/") || renderFrame.sceneName != "SmokeScene" ||
+        renderFrame.sceneEntityCount != 2 || renderFrame.surfaceWidth != config.windowWidth ||
+        renderFrame.surfaceHeight != config.windowHeight || !renderFrame.presentedToSurface ||
+        renderFrame.visiblePixelSampleCount == 0 || !renderFrame.camera.has_value() ||
+        renderFrame.sprites.size() != 1 || renderFrame.camera->cameraName != "SmokeCamera" ||
+        renderFrame.sprites.front().entityName != "SmokePlayer" ||
+        renderFrame.sprites.front().material.materialName != "materials/tests.player" ||
+        renderFrame.sprites.front().material.textureAssetName != "textures/player_idle" ||
+        renderFrame.sprites.front().material.resolvedLoaderKey != "texture_placeholder")
+    {
+        std::cerr << "Completed render frame snapshot was missing expected camera/material details.\n";
+        std::cerr << "Backend: " << renderFrame.backendName << '\n';
+        std::cerr << "Scene name: " << renderFrame.sceneName << '\n';
+        std::cerr << "Scene entity count: " << renderFrame.sceneEntityCount << '\n';
+        std::cerr << "Surface: " << renderFrame.surfaceWidth << 'x' << renderFrame.surfaceHeight << '\n';
+        std::cerr << "Presented to surface: " << (renderFrame.presentedToSurface ? "true" : "false") << '\n';
+        std::cerr << "Visible pixel sample count: " << renderFrame.visiblePixelSampleCount << '\n';
+        std::cerr << "Has camera: " << (renderFrame.camera.has_value() ? "true" : "false") << '\n';
+        std::cerr << "Sprite count: " << renderFrame.sprites.size() << '\n';
+        if (renderFrame.camera.has_value())
+        {
+            std::cerr << "Camera name: " << renderFrame.camera->cameraName << '\n';
+        }
+        if (!renderFrame.sprites.empty())
+        {
+            std::cerr << "Sprite entity name: " << renderFrame.sprites.front().entityName << '\n';
+            std::cerr << "Sprite material: " << renderFrame.sprites.front().material.materialName << '\n';
+            std::cerr << "Sprite texture asset: " << renderFrame.sprites.front().material.textureAssetName << '\n';
+            std::cerr << "Sprite loader: " << renderFrame.sprites.front().material.resolvedLoaderKey << '\n';
+        }
         return 1;
     }
 

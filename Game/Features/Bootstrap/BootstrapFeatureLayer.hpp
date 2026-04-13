@@ -16,10 +16,12 @@ public:
     void OnAttach(RuntimeServices& services) override;
     void OnFixedUpdate(const TickContext& context) override;
     void OnUpdate(const TickContext& context) override;
+    void OnRender(const TickContext& context) override;
     void OnDetach(RuntimeServices& services) override;
 
 private:
     EntityId m_playerEntityId = kInvalidEntityId;
+    EntityId m_cameraEntityId = kInvalidEntityId;
     std::size_t m_timerSubscriptionId = 0;
     std::size_t m_observedSpawnPulseCount = 0;
     std::size_t m_handledSpawnPulseCount = 0;

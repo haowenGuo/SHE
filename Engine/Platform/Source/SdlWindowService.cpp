@@ -400,6 +400,13 @@ WindowState SdlWindowService::GetWindowState() const
     return m_windowState;
 }
 
+NativeWindowHandle SdlWindowService::GetNativeWindowHandle() const
+{
+    return NativeWindowHandle{
+        m_window != nullptr ? NativeWindowBackend::Sdl3 : NativeWindowBackend::None,
+        m_window};
+}
+
 std::size_t SdlWindowService::GetPumpCount() const
 {
     return m_pumpCount;
