@@ -14,9 +14,9 @@ Status values:
 | ID | Workstream | Module Focus | Status | Owner | Branch / Worktree | Dependencies | Deliverable |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | W00 | Coordination Foundation | docs + coordination | integrated | current-codex | `main` / `F:\SHE-workspace\SHE` | none | workflow docs, launch plan, integration control |
-| W01 | Gameplay Core | `Engine/Gameplay` | ready | unassigned | `codex/w01/gameplay-core` / `SHE-w01-gameplay` | W00 | command registry, executor, event bus, timers |
-| W02 | Data Core | `Engine/Data` | ready | unassigned | `codex/w02/data-core` / `SHE-w02-data` | W00 | YAML load + schema validation contract |
-| W03 | Diagnostics + AI Context | `Engine/Diagnostics`, `Engine/AI` | ready | unassigned | `codex/w03/diagnostics-ai` / `SHE-w03-diagnostics` | W00 | richer traces and authoring export |
+| W01 | Gameplay Core | `Engine/Gameplay` | integrated | w01-codex | `codex/w01/gameplay-core` / `SHE-w01-gameplay` | W00 | command registry, executor, event bus, timers |
+| W02 | Data Core | `Engine/Data` | in_progress | w02-codex | `codex/w02/data-core` / `SHE-w02-data` | W00 | YAML load + schema validation contract |
+| W03 | Diagnostics + AI Context | `Engine/Diagnostics`, `Engine/AI` | in_progress | w03-codex | `codex/w03/diagnostics-ai` / `SHE-w03-diagnostics` | W00, W02 | richer traces and authoring export |
 | W04 | Scripting Host | `Engine/Scripting` | backlog | unassigned | `codex/w04/scripting-host` / `SHE-w04-scripting` | W01, W02 | stable script host boundary |
 | W05 | Scene + ECS | `Engine/Scene` | backlog | unassigned | `codex/w05/scene-ecs` / `SHE-w05-scene` | W01, W02 | entity registry, component queries, world model |
 | W06 | Asset Pipeline | `Engine/Assets` | backlog | unassigned | `codex/w06/asset-pipeline` / `SHE-w06-assets` | W02, W05 | asset IDs, metadata, loader contracts |

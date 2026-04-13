@@ -71,3 +71,21 @@ Reason:
 
 - this reduces merge conflict risk and improves handoff quality
 
+## ADR-007: Gameplay public contracts are the shared runtime gameplay baseline
+
+Decision:
+
+- downstream systems should treat the `IGameplayService` public surface in
+  `RuntimeServices.hpp` as the stable gameplay entry point
+- gameplay-triggering integrations should route through the shared
+  command/event/timer path instead of inventing private dispatch channels
+- diagnostics and AI context may summarize gameplay activity, but they should
+  observe the gameplay contract rather than bypass it
+
+Reason:
+
+- scripting, physics, audio, and diagnostics all need one visible story for how
+  gameplay activity enters and moves through the engine
+- a shared gameplay baseline keeps runtime behavior explainable to future Codex
+  sessions and reduces hidden coupling between workstreams
+

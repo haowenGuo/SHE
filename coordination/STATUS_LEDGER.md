@@ -35,3 +35,39 @@ Changed Files: docs/MODULE_PRIORITY.md, coordination/TASK_BOARD.md, docs/MULTI_C
 Tests: PowerShell syntax check for Create-MultiCodexWorktrees.ps1; documentation-only change otherwise
 Next Step: open W00, W01, W02, and W03 first, then launch W05, W06, and W07 as the second-wave runtime spine
 
+Date: 2026-04-13
+Workstream: W01
+Owner: w01-codex
+Status: ready_for_integration
+Summary: W00 accepted the gameplay command/event/timer slice after reproducing configure, build, and ctest in the W01 worktree. Shared gameplay contract additions in RuntimeServices.hpp are ready for integration review.
+Changed Files: Engine/Core/Include/SHE/Core/RuntimeServices.hpp, Engine/Gameplay/*, Game/Features/Bootstrap/*, Tests/CMakeLists.txt, Tests/Source/GameplayContractTests.cpp, Tests/Source/SmokeTests.cpp, coordination/HANDOFFS/2026-04-13-w01-gameplay-contracts.md
+Tests: cmake --preset default; cmake --build --preset build-default; ctest --preset test-default (she_smoke_tests, she_gameplay_contract_tests passed)
+Next Step: W00 records the gameplay interface expansion in coordination/INTEGRATION_REPORT.md and integrates W01 before downstream systems build on the new command/event path
+
+Date: 2026-04-13
+Workstream: W02
+Owner: w02-codex
+Status: in_progress
+Summary: W00 verified the data contract slice builds and tests cleanly, but held it in progress because the branch edits W03-owned AI context files and overlaps with W03 on AuthoringAiService.cpp, docs/AI_CONTEXT.md, and Tests/Source/SmokeTests.cpp.
+Changed Files: Engine/Core/Include/SHE/Core/RuntimeServices.hpp, Engine/Data/*, Engine/AI/Source/AuthoringAiService.cpp, Game/Features/Bootstrap/*, Tools/Sandbox/Source/SandboxLayer.cpp, Tests/CMakeLists.txt, Tests/Source/DataContractTests.cpp, Tests/Source/SmokeTests.cpp, docs/AI_CONTEXT.md, docs/SCHEMAS/README.md, coordination/HANDOFFS/2026-04-13-w02-data-contract-layer.md
+Tests: cmake --preset default; cmake --build --preset build-default; ctest --preset test-default (she_smoke_tests, she_data_contract_tests passed)
+Next Step: align the AI-context and smoke-test overlap with W03 so the new IDataService contract and data registry summary survive integration without violating workstream ownership
+
+Date: 2026-04-13
+Workstream: W03
+Owner: w03-codex
+Status: in_progress
+Summary: W00 verified the diagnostics/context slice builds and tests cleanly on its own branch, but kept it in progress because it overlaps with W02 on AuthoringAiService.cpp, docs/AI_CONTEXT.md, and Tests/Source/SmokeTests.cpp and still assumes the pre-W02 IDataService smoke-test API.
+Changed Files: Engine/AI/Include/SHE/AI/AuthoringAiService.hpp, Engine/AI/Source/AuthoringAiService.cpp, Engine/Core/Source/Application.cpp, Engine/Diagnostics/*, Tests/Source/SmokeTests.cpp, docs/AI_CONTEXT.md, coordination/HANDOFFS/2026-04-13-w03-diagnostics-context-structure.md
+Tests: cmake --preset default; cmake --build --preset build-default; ctest --preset test-default (she_smoke_tests passed)
+Next Step: rebase onto the W02 data contract changes, update the smoke test to the new IDataService registration API, and fold the data registry summary into the structured authoring-context export
+
+Date: 2026-04-13
+Workstream: W01
+Owner: w01-codex
+Status: integrated
+Summary: W00 integrated the W01 gameplay slice onto main as commit 290150d, adopted the new IGameplayService command/event/timer contract as the downstream gameplay baseline, and preserved the W01 handoff on main.
+Changed Files: Engine/Core/Include/SHE/Core/RuntimeServices.hpp, Engine/Gameplay/*, Game/Features/Bootstrap/*, Tests/CMakeLists.txt, Tests/Source/GameplayContractTests.cpp, Tests/Source/SmokeTests.cpp, coordination/HANDOFFS/2026-04-13-w01-gameplay-contracts.md, coordination/TASK_BOARD.md, coordination/STATUS_LEDGER.md, coordination/INTEGRATION_REPORT.md, docs/ARCHITECTURE_DECISIONS.md
+Tests: cmake --preset default; cmake --build --preset build-default; ctest --preset test-default (she_smoke_tests, she_gameplay_contract_tests passed on main)
+Next Step: W02 and W03 should rebase their active worktrees onto main and treat the integrated gameplay command/event path as the stable runtime entry point for future AI, scripting, physics, and audio hooks
+
