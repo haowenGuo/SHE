@@ -42,7 +42,25 @@ void BootstrapFeatureLayer::OnAttach(RuntimeServices& services)
         "bootstrap.spawn_rules",
         "Future Lua module for spawn pacing and wave customization.");
 
-    services.gameplay->CreateTimer("bootstrap.spawn_pulse", 1.0, true);
+    services.gameplay->RegisterCommand({
+        "SpawnEncounter",
+        "Route authored encounter spawns through the gameplay command registry.",
+        "encounter",
+        "SpawnRequested",
+    });
+
+    m_timerSubscriptionId = services.gameplay->SubscribeToEvent(
+        "timer",
+        "TimerElapsed",
+        [this](const GameplayEvent& event)
+        {
+            if (event.source == "timer:bootstrap.spawn_pulse")
+            {
+                ++m_observedSpawnPulseCount;
+            }
+        });
+
+    services.gameplay->CreateTimer("bootstrap.spawn_pulse", 0.05, true);
     services.gameplay->QueueEvent("feature", "BootstrapAttached", "Bootstrap feature registered its contracts.");
 
     m_playerEntityId = services.scene->CreateEntity("Player");
@@ -81,10 +99,24 @@ void BootstrapFeatureLayer::OnUpdate(const TickContext& context)
     {
         SHE_LOG_WARNING("Game", "Bootstrap feature failed to create the player entity.");
     }
+
+    if (m_observedSpawnPulseCount > m_handledSpawnPulseCount)
+    {
+        m_handledSpawnPulseCount = m_observedSpawnPulseCount;
+        context.services.gameplay->QueueCommand(
+            "SpawnEncounter",
+            "encounter=bootstrap_room_a; enemy=training_dummy; count=1; trigger=spawn_pulse");
+    }
 }
 
-void BootstrapFeatureLayer::OnDetach(RuntimeServices&)
+void BootstrapFeatureLayer::OnDetach(RuntimeServices& services)
 {
+    if (m_timerSubscriptionId != 0)
+    {
+        services.gameplay->UnsubscribeFromEvent(m_timerSubscriptionId);
+        m_timerSubscriptionId = 0;
+    }
+
     SHE_LOG_INFO("Game", "Bootstrap feature layer detached.");
 }
 } // namespace she

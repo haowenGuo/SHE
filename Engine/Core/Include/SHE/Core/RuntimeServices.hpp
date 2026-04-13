@@ -3,6 +3,7 @@
 #include "SHE/Core/ApplicationConfig.hpp"
 #include "SHE/Core/Types.hpp"
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -91,6 +92,31 @@ public:
     virtual std::string DescribeSchemas() const = 0;
 };
 
+// Gameplay commands are registered as stable authoring-facing verbs. The
+// executor turns them into routed gameplay events so other systems can observe
+// gameplay activity without poking at feature internals.
+struct GameplayCommandDescriptor
+{
+    std::string name;
+    std::string description;
+    std::string routedEventCategory;
+    std::string routedEventName;
+};
+
+// GameplayEvent is the record that moves through the gameplay event bus. The
+// source field keeps the originating timer/command/API path visible to AI and
+// diagnostics consumers.
+struct GameplayEvent
+{
+    std::string category;
+    std::string name;
+    std::string payload;
+    std::string source;
+    FrameIndex frameIndex = 0;
+};
+
+using GameplayEventHandler = std::function<void(const GameplayEvent&)>;
+
 class IGameplayService
 {
 public:
@@ -98,6 +124,13 @@ public:
 
     virtual void Initialize() = 0;
     virtual void Shutdown() = 0;
+    // Register commands during feature attach or service setup. Re-registering
+    // a name updates its routed event mapping.
+    virtual void RegisterCommand(GameplayCommandDescriptor descriptor) = 0;
+    virtual bool HasCommand(std::string_view commandName) const = 0;
+    // Empty category or name acts as a wildcard subscription.
+    virtual std::size_t SubscribeToEvent(std::string category, std::string name, GameplayEventHandler handler) = 0;
+    virtual void UnsubscribeFromEvent(std::size_t subscriptionId) = 0;
     virtual void BeginFrame(FrameIndex frameIndex) = 0;
     virtual void AdvanceFixedStep(double fixedTimeStep) = 0;
     virtual void AdvanceFrame(double deltaSeconds) = 0;

@@ -39,6 +39,8 @@ public:
         services.scripting->RegisterScriptModule(
             "tests.smoke.module",
             "Placeholder module registered by the smoke test.");
+        services.gameplay->RegisterCommand(
+            {"SmokeTestCommand", "Routes the smoke test command through the gameplay event bus.", "tests", "SmokeCommandRequested"});
         services.gameplay->CreateTimer("tests.smoke.timer", 0.05, false);
         services.gameplay->QueueCommand("SmokeTestCommand", "payload=ok");
     }

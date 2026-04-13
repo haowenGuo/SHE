@@ -9,6 +9,7 @@ struct TimerSignal
 {
     std::string timerName;
     double durationSeconds = 0.0;
+    bool repeating = false;
 };
 
 struct GameplayTimer

@@ -14,6 +14,7 @@ struct GameplayCommand
 class CommandBuffer
 {
 public:
+    void Reset();
     void Queue(GameplayCommand command);
     [[nodiscard]] std::vector<GameplayCommand> ConsumeAll();
     [[nodiscard]] std::size_t GetPendingCount() const;

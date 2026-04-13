@@ -20,6 +20,9 @@ public:
 
 private:
     EntityId m_playerEntityId = kInvalidEntityId;
+    std::size_t m_timerSubscriptionId = 0;
+    std::size_t m_observedSpawnPulseCount = 0;
+    std::size_t m_handledSpawnPulseCount = 0;
     bool m_loggedFeatureSummary = false;
     bool m_queuedFirstSpawnCommand = false;
 };

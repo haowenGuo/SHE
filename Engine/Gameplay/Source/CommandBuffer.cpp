@@ -4,6 +4,11 @@
 
 namespace she
 {
+void CommandBuffer::Reset()
+{
+    m_pending.clear();
+}
+
 void CommandBuffer::Queue(GameplayCommand command)
 {
     m_pending.push_back(std::move(command));

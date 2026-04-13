@@ -2,6 +2,8 @@ add_library(
     she_engine_gameplay
     STATIC
         Source/CommandBuffer.cpp
+        Source/CommandRegistry.cpp
+        Source/EventBus.cpp
         Source/GameplayService.cpp
         Source/TimerService.cpp
 )
