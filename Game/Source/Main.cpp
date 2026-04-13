@@ -1,6 +1,6 @@
 #include <SDL3/SDL_main.h>
 
-#include "Bootstrap/BootstrapFeatureLayer.hpp"
+#include "VerticalSlice/VerticalSliceFeatureLayer.hpp"
 
 #include "SHE/AI/AuthoringAiService.hpp"
 #include "SHE/Assets/AssetManager.hpp"
@@ -60,11 +60,11 @@ she::RuntimeServices CreateBootstrapRuntime()
 int main(int, char**)
 {
     she::ApplicationConfig config;
-    config.applicationName = "SHE Game";
+    config.applicationName = "SHE Vertical Slice";
     config.useDeterministicFrameTiming = false;
     config.maxFrames = 0;
 
     she::Application app(config, CreateBootstrapRuntime());
-    app.PushLayer(std::make_unique<she::BootstrapFeatureLayer>());
+    app.PushLayer(std::make_unique<she::VerticalSliceFeatureLayer>());
     return app.Run();
 }

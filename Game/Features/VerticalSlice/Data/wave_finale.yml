@@ -1,0 +1,11 @@
+id: feature.vertical_slice.wave.finale
+spawn:
+  x: -5.0
+  y: -2.2
+velocity:
+  x: 2.45
+  y: 2.15
+size:
+  x: 0.9
+  y: 0.9
+cadence: finale

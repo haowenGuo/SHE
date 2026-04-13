@@ -1,0 +1,6 @@
+id: feature.vertical_slice.pickup.gamma
+spawn:
+  x: 0.0
+  y: -0.2
+reward: signal_core
+lane: center

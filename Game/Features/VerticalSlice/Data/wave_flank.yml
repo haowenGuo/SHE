@@ -1,0 +1,11 @@
+id: feature.vertical_slice.wave.flank
+spawn:
+  x: 4.7
+  y: -3.0
+velocity:
+  x: 0.0
+  y: 2.9
+size:
+  x: 0.95
+  y: 0.95
+cadence: flank

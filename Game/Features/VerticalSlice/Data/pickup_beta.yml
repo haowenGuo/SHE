@@ -1,0 +1,6 @@
+id: feature.vertical_slice.pickup.beta
+spawn:
+  x: 5.5
+  y: 1.8
+reward: signal_core
+lane: east

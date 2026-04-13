@@ -143,3 +143,33 @@ target_link_libraries(
 she_configure_target(she_ui_contract_tests)
 
 add_test(NAME she_ui_contract_tests COMMAND she_ui_contract_tests)
+
+add_executable(
+    she_vertical_slice_smoke_tests
+    Source/VerticalSliceSmokeTests.cpp
+)
+
+target_link_libraries(
+    she_vertical_slice_smoke_tests
+    PRIVATE
+        she_gameplay
+        she_engine
+)
+she_configure_target(she_vertical_slice_smoke_tests)
+
+add_test(NAME she_vertical_slice_smoke_tests COMMAND she_vertical_slice_smoke_tests)
+
+add_executable(
+    she_vertical_slice_flow_tests
+    Source/VerticalSliceFlowTests.cpp
+)
+
+target_link_libraries(
+    she_vertical_slice_flow_tests
+    PRIVATE
+        she_gameplay
+        she_engine
+)
+she_configure_target(she_vertical_slice_flow_tests)
+
+add_test(NAME she_vertical_slice_flow_tests COMMAND she_vertical_slice_flow_tests)

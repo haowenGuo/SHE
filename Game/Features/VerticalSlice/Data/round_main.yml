@@ -1,0 +1,5 @@
+id: feature.vertical_slice.round.main
+objective: secure_three_signal_cores
+round_seconds: 24
+wave_interval_seconds: 6
+pickup_target: 3

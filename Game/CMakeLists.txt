@@ -2,6 +2,7 @@ add_library(
     she_gameplay
     STATIC
         Features/Bootstrap/BootstrapFeatureLayer.cpp
+        Features/VerticalSlice/VerticalSliceFeatureLayer.cpp
 )
 
 target_include_directories(she_gameplay PUBLIC Source Features)

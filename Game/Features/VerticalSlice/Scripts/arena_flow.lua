@@ -1,0 +1,12 @@
+-- Vertical Slice Arena Flow
+--
+-- The current scripting host contract validates this module declaration and
+-- routes exported functions into gameplay commands. The payloads are authored
+-- by the feature layer so the slice stays small while still proving the
+-- scripting boundary.
+--
+-- Exported functions declared in VerticalSliceFeatureLayer.cpp:
+-- - open_round
+-- - restart_round
+-- - queue_pickup
+-- - queue_wave
