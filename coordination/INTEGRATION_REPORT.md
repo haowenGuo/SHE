@@ -13,11 +13,11 @@ Track:
 ## Current Summary
 
 - `W00` integrated successfully
-- `W01`, `W02`, and `W03` remain the recommended first-wave launch set
+- `W01`, `W02`, and `W03` were the recommended first-wave launch set and are now integrated on `main`
 - `W01` is integrated on `main` and now defines the gameplay public-contract baseline for downstream runtime workstreams
 - `W02` is integrated on `main` as commit `1202779` and now defines the accepted data-contract baseline for downstream runtime workstreams
-- `W03` is not accepted yet even though its local tests pass; its committed closeout checkpoint `84c22a7` still diverges from the accepted W02 data-contract surface
-- the project should not formally enter the next runtime-wave implementation stage until W02 is integrated and W03 is corrected or reconciled
+- `W03` is integrated on `main` as commit `6b13173` and now defines the accepted diagnostics and AI-context baseline layered on top of the W01 and W02 foundations
+- the first-wave foundation is complete on `main`, and the project can now begin the core runtime-wave implementation stage
 - `W05`, `W06`, and `W07` define the second-wave runtime spine
 - `W08`, `W09`, and `W10` define the third-wave playable runtime layer
 - `W04` and `W11` should wait until stronger runtime contracts exist
@@ -67,25 +67,24 @@ Integrated on `main`:
     - `W03` should inspect gameplay activity through `BuildGameplayDigest()` and the new event-aware gameplay contract rather than private queues
     - `W04`, `W09`, and `W10` should route gameplay-facing triggers through `IGameplayService` instead of inventing parallel dispatch paths
 
-Open integration blockers:
+Integrated first-wave checkpoints:
 
-- `W03` still rewrites the W02 data-contract surface instead of preserving it.
-- In `F:\SHE-workspace\SHE-w02-data\Engine\Core\Include\SHE\Core\RuntimeServices.hpp`, the accepted W02 contract includes `DataSchemaFieldContract`, `DataSchemaRegistrationResult`, `DataLoadRequest`, `DataLoadResult`, `DataRegistryEntry`, `HasSchema`, `GetSchemaCount`, `GetRecordCount`, `GetTrustedRecordCount`, `ListSchemas`, `ListRecords`, and `DescribeRegistry`.
-- In `F:\SHE-workspace\SHE-w03-diagnostics\Engine\Core\Include\SHE\Core\RuntimeServices.hpp`, the current W03 closeout commit replaces that accepted model with a narrower `DataSchemaContract`/`DataRecordSummary` shape and drops parts of the W02 interface surface.
-- `W03` currently has no `Tests/Source/DataContractTests.cpp`, so its local green test run does not prove preservation of the accepted W02 data-contract behavior.
-- explicit closeout directives now live in:
-  - `coordination/WORKSTREAMS/W02_closeout-directive.md`
-  - `coordination/WORKSTREAMS/W03_closeout-directive.md`
+- `W01` integrated as `290150d`
+- `W02` integrated as `1202779`
+- `W03` integrated as `6b13173`
+
+The W02/W03 closeout directives remain in the repository as historical launch
+artifacts:
+
+- `coordination/WORKSTREAMS/W02_closeout-directive.md`
+- `coordination/WORKSTREAMS/W03_closeout-directive.md`
 
 Recommended integration order:
 
-1. integrate `W01`
-2. integrate `W02`
-3. have `W03` revise its closeout branch on top of the accepted W02 data-contract surface and keep ownership of diagnostics, AI-context export, `Application.cpp`, and smoke-test merge resolution
-4. re-run configure/build/test after the corrected W03 surface is settled
-5. only then mark `W03` as `ready_for_integration`
-6. integrate `W03`
-7. after W03 is integrated on `main`, start the core runtime wave in this order: `W07` first, `W05` second, `W06` third
+1. launch `W07` Platform + Input as the first active core-runtime workstream
+2. launch `W05` Scene + ECS after W07 documents loop/input assumptions on `main`
+3. launch `W06` Asset Pipeline after W05 establishes the world-model boundary
+4. hold `W08`, `W09`, `W10`, and `W11` until the runtime spine contracts stabilize
 
 ## Integration Rules
 

@@ -16,9 +16,9 @@ Status values:
 | W00 | Coordination Foundation | docs + coordination | integrated | current-codex | `main` / `F:\SHE-workspace\SHE` | none | workflow docs, launch plan, integration control |
 | W01 | Gameplay Core | `Engine/Gameplay` | integrated | w01-codex | `codex/w01/gameplay-core` / `SHE-w01-gameplay` | W00 | command registry, executor, event bus, timers |
 | W02 | Data Core | `Engine/Data` | integrated | w02-codex | `codex/w02/data-core` / `SHE-w02-data` | W00 | YAML load + schema validation contract |
-| W03 | Diagnostics + AI Context | `Engine/Diagnostics`, `Engine/AI` | blocked | w03-codex | `codex/w03/diagnostics-ai` / `SHE-w03-diagnostics` | W00, W02 | richer traces and authoring export |
+| W03 | Diagnostics + AI Context | `Engine/Diagnostics`, `Engine/AI` | integrated | w03-codex | `codex/w03/diagnostics-ai` / `SHE-w03-diagnostics` | W00, W02 | richer traces and authoring export |
 | W04 | Scripting Host | `Engine/Scripting` | backlog | unassigned | `codex/w04/scripting-host` / `SHE-w04-scripting` | W01, W02 | stable script host boundary |
-| W05 | Scene + ECS | `Engine/Scene` | backlog | unassigned | `codex/w05/scene-ecs` / `SHE-w05-scene` | W01, W02 | entity registry, component queries, world model |
+| W05 | Scene + ECS | `Engine/Scene` | ready | unassigned | `codex/w05/scene-ecs` / `SHE-w05-scene` | W01, W02 | entity registry, component queries, world model |
 | W06 | Asset Pipeline | `Engine/Assets` | backlog | unassigned | `codex/w06/asset-pipeline` / `SHE-w06-assets` | W02, W05 | asset IDs, metadata, loader contracts |
 | W07 | Platform + Input | `Engine/Platform` | ready | unassigned | `codex/w07/platform-input` / `SHE-w07-platform` | W00 | SDL3 window loop and input path |
 | W08 | Renderer2D | `Engine/Renderer` | backlog | unassigned | `codex/w08/renderer2d` / `SHE-w08-renderer` | W05, W06, W07 | sprite renderer and camera path |
