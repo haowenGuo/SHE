@@ -25,8 +25,8 @@ Track:
 - `W10` is integrated on `main` as commit `ee89d32` and now defines the accepted miniaudio playback baseline
 - `W04` is integrated on `main` as commit `4c27a9a` and now defines the accepted scripting host contract baseline
 - `W11` is integrated on `main` as commit `4b242b9` and now defines the accepted runtime debug surface baseline
-- the scripting-and-debug wave is now complete on `main`, and the project can formally begin the vertical-slice implementation stage
-- `W12` is now ready because all W01-W11 dependencies are integrated on `main`
+- `W12` is integrated on `main` as commit `60683f3` and now defines the accepted playable vertical-slice baseline
+- the full W01-W12 plan is now integrated on `main`, and the project has a coherent playable slice on the mainline
 - `W00/main` remains the source of truth for task status, ledger entries, and integration notes
 
 ## Pending Interface Watchlist
@@ -102,11 +102,28 @@ Integrated authoring/debug checkpoints:
 - `W04` integrated as `4c27a9a`
 - `W11` integrated as `4b242b9`
 
+Integrated vertical-slice checkpoint:
+
+- `W12` integrated as `60683f3`
+
 Recommended next launch order:
 
-1. launch `W12` Vertical Slice Game now that the accepted W01-W11 engine baseline is complete on `main`
-2. keep `main` as the authoritative integration/control branch while W12 proves the full engine stack in one playable feature slice
-3. use the integrated scripting and debug surfaces rather than adding feature-local backdoors during slice implementation
+1. keep `main` as the authoritative integration/control branch for post-slice polish and hardening work
+2. evolve the integrated playable slice rather than spinning up a second proof-of-concept path
+3. prefer narrow polish/content/balance slices unless a new engine contract is genuinely required
+
+## W12 Acceptance Notes
+
+- branch: `codex/w12/vertical-slice`
+- checkpoint commit: `59d7009` (`W12 checkpoint: add playable vertical slice`)
+- integrated on `main` as `60683f3`
+- handoff: `coordination/HANDOFFS/2026-04-13-w12-vertical-slice.md`
+- validation run completed on `F:\SHE-workspace\SHE-w12-vertical-slice`
+- mainline validation result: `cmake --preset default`, `cmake --build --preset build-default`, and `ctest --preset test-default --output-on-failure` all passed on `F:\SHE-workspace\SHE` with 14/14 tests green
+- new tests exercised:
+  - `she_vertical_slice_smoke_tests`
+  - `she_vertical_slice_flow_tests`
+- shared engine contract impact reported by the handoff: none
 
 ## Integration Rules
 

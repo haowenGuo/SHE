@@ -215,3 +215,30 @@ Changed Files: coordination/TASK_BOARD.md, coordination/STATUS_LEDGER.md, coordi
 Tests: cmake --preset default on main; cmake --build --preset build-default on main; ctest --preset test-default on main (12/12 passed: she_smoke_tests, she_gameplay_contract_tests, she_data_contract_tests, she_platform_input_tests, she_scene_contract_tests, she_asset_contract_tests, she_renderer_contract_tests, she_physics_contract_tests, she_audio_contract_tests, she_scripting_host_tests, she_bootstrap_script_tests, she_ui_contract_tests)
 Next Step: launch W12 Vertical Slice Game on top of the fully integrated W01-W11 engine baseline
 
+Date: 2026-04-13
+Workstream: W12
+Owner: w12-codex
+Status: ready_for_integration
+Summary: W12 submitted a playable vertical-slice checkpoint on `codex/w12/vertical-slice`, adding a top-down arena loop, feature-local authored data/scripts/assets, and dedicated vertical-slice smoke/flow tests while reusing accepted W01-W11 engine surfaces without introducing new shared engine contracts.
+Changed Files: Game/Features/VerticalSlice/*, Game/Source/Main.cpp, Game/CMakeLists.txt, Tests/CMakeLists.txt, Tests/Source/VerticalSliceSmokeTests.cpp, Tests/Source/VerticalSliceFlowTests.cpp, coordination/HANDOFFS/2026-04-13-w12-vertical-slice.md
+Tests: configure + build + `ctest --preset test-default --output-on-failure` on `F:\SHE-workspace\SHE-w12-vertical-slice`; 14/14 tests passed including `she_vertical_slice_smoke_tests` and `she_vertical_slice_flow_tests`
+Next Step: W00 should review the W12 diff and handoff for gameplay acceptance, then integrate `codex/w12/vertical-slice` into `main` when satisfied
+
+Date: 2026-04-13
+Workstream: W12
+Owner: w12-codex
+Status: integrated
+Summary: W00 integrated the playable vertical slice onto main as commit 60683f3. The mainline now launches the vertical-slice feature instead of the bootstrap sample and proves the accepted W01-W11 engine stack through one coherent playable loop.
+Changed Files: Game/CMakeLists.txt, Game/Source/Main.cpp, Game/Features/VerticalSlice/*, Tests/CMakeLists.txt, Tests/Source/VerticalSliceSmokeTests.cpp, Tests/Source/VerticalSliceFlowTests.cpp, coordination/HANDOFFS/2026-04-13-w12-vertical-slice.md
+Tests: cmake --preset default on main; cmake --build --preset build-default on main; ctest --preset test-default on main (14/14 passed, including she_vertical_slice_smoke_tests and she_vertical_slice_flow_tests)
+Next Step: use the integrated slice on main as the baseline for polish, balancing, content expansion, and future packaging decisions rather than rebuilding another proof slice from scratch
+
+Date: 2026-04-13
+Workstream: W00
+Owner: current-codex
+Status: integrated
+Summary: Completed the vertical-slice system acceptance pass. W12 is now integrated on main, the repository builds and tests cleanly with a playable slice as the default game entry, and the planned W01-W12 baseline is fully realized on the mainline.
+Changed Files: coordination/TASK_BOARD.md, coordination/STATUS_LEDGER.md, coordination/INTEGRATION_REPORT.md
+Tests: cmake --preset default on main; cmake --build --preset build-default on main; ctest --preset test-default on main (14/14 passed: she_smoke_tests, she_gameplay_contract_tests, she_data_contract_tests, she_platform_input_tests, she_scene_contract_tests, she_asset_contract_tests, she_renderer_contract_tests, she_physics_contract_tests, she_audio_contract_tests, she_scripting_host_tests, she_bootstrap_script_tests, she_ui_contract_tests, she_vertical_slice_smoke_tests, she_vertical_slice_flow_tests)
+Next Step: plan a post-slice phase around polish, balance, content depth, and shipping-quality hardening on top of the now-integrated playable baseline
+
