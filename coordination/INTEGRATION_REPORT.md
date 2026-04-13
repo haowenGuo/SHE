@@ -27,6 +27,7 @@ Track:
 - `W11` is integrated on `main` as commit `4b242b9` and now defines the accepted runtime debug surface baseline
 - `W12` is integrated on `main` as commit `60683f3` and now defines the accepted playable vertical-slice baseline
 - the full W01-W12 plan is now integrated on `main`, and the project has a coherent playable slice on the mainline
+- `W13`, `W14`, `W15`, and `W16` are the recommended post-slice productization launch set on top of the accepted W12 baseline
 - `W00/main` remains the source of truth for task status, ledger entries, and integration notes
 
 ## Pending Interface Watchlist
@@ -111,6 +112,39 @@ Recommended next launch order:
 1. keep `main` as the authoritative integration/control branch for post-slice polish and hardening work
 2. evolve the integrated playable slice rather than spinning up a second proof-of-concept path
 3. prefer narrow polish/content/balance slices unless a new engine contract is genuinely required
+
+## 2026-04-14 Post-Slice Productization Launch
+
+The next wave should start as four parallel workstreams on top of `W12`:
+
+- `W13` Polish + Feel
+  - owns moment-to-moment responsiveness, readability, presentation timing, and
+    player-facing feedback inside the accepted slice path
+- `W14` Balance + Progression
+  - owns tuning of the existing W12-authored records, timers, hazard pressure,
+    pickup value, and pacing
+- `W15` Content Expansion
+  - owns additive authored content such as extra encounter definitions, new
+    round/wave records, and other replayable feature-local content extensions
+- `W16` Release Hardening
+  - owns launch stability, regression coverage, packaging/readme/runbook work,
+    and other delivery-facing hardening tasks
+
+Productization freeze rules for this wave:
+
+- `W13` should prefer `VerticalSliceFeatureLayer.*` and other feature-local
+  presentation code, and avoid broad record churn that belongs to `W14`.
+- `W14` owns edits to the existing W12-authored balance records and should keep
+  tuning data-driven whenever possible.
+- `W15` should prefer additive files and narrowly scoped wiring changes, and
+  should not rewrite `W14`-owned baseline records unless that coordination is
+  called out explicitly in the handoff.
+- `W16` owns tests, launch instructions, packaging/hardening notes, and any
+  minimal runtime/bootstrap fixes required for stability; if it must touch
+  shared build or runtime files, that change must be called out for `W00`
+  review before integration.
+- Any change to `RuntimeServices.hpp`, `Application.cpp`, `Engine/CMakeLists.txt`,
+  or `CMakeLists.txt` remains a `W00` review item before integration.
 
 ## W12 Acceptance Notes
 

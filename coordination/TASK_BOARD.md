@@ -26,3 +26,7 @@ Status values:
 | W10 | Audio Runtime | `Engine/Audio` | integrated | w10-codex | `codex/w10/audio-runtime` / `SHE-w10-audio` | W01, W06, W07 | miniaudio playback runtime |
 | W11 | UI + Debug Tools | `Engine/UI` | integrated | w11-codex | `codex/w11/ui-debug` / `SHE-w11-ui-debug` | W03, W08, W09 | ImGui debug surfaces and runtime panels |
 | W12 | Vertical Slice Game | `Game/Features/*` | integrated | w12-codex | `codex/w12/vertical-slice` / `SHE-w12-vertical-slice` | W01-W11 | playable small game |
+| W13 | Polish + Feel | `Game/Features/VerticalSlice` | ready | unassigned | `codex/w13/polish-feel` / `SHE-w13-polish-feel` | W12 | readable, responsive, playtest-ready slice feel |
+| W14 | Balance + Progression | `Game/Features/VerticalSlice/Data` | ready | unassigned | `codex/w14/balance-progression` / `SHE-w14-balance-progression` | W12 | tuned difficulty, pacing, and data-driven progression |
+| W15 | Content Expansion | `Game/Features/VerticalSlice` | ready | unassigned | `codex/w15/content-expansion` / `SHE-w15-content-expansion` | W12 | additive content, encounters, and authored variation |
+| W16 | Release Hardening | `Game`, `Tests`, `docs` | ready | unassigned | `codex/w16/release-hardening` / `SHE-w16-release-hardening` | W12 | launch stability, regression coverage, and delivery readiness |
