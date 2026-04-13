@@ -89,3 +89,37 @@ Reason:
 - a shared gameplay baseline keeps runtime behavior explainable to future Codex
   sessions and reduces hidden coupling between workstreams
 
+## ADR-008: Scripting integration should stabilize at the host-contract layer
+
+Decision:
+
+- feature code should depend on `IScriptingService` contracts such as bindings,
+  module descriptors, load results, and invocation routing
+- script-driven gameplay should still enter the engine through accepted
+  gameplay commands rather than direct feature-side interpreter calls
+
+Reason:
+
+- this lets the project adopt a real Lua backend later without forcing feature
+  modules to rewrite their public scripting touchpoints
+- a host-contract-first approach keeps scripting visible to AI context,
+  diagnostics, and tests before a final VM choice hardens
+
+## ADR-009: Debug tooling should read accepted runtime surfaces, not private
+module internals
+
+Decision:
+
+- debug UI surfaces should aggregate state through public runtime services such
+  as renderer frame snapshots, physics debug summaries, diagnostics reports,
+  and authoring-context exports
+- tooling should stay read-only unless a future decision explicitly adds
+  mutation paths
+
+Reason:
+
+- this keeps engine ownership boundaries intact while still making the runtime
+  inspectable
+- a contract-driven debug surface reduces the temptation to add one-off
+  inspector hooks that only a single slice understands
+

@@ -188,3 +188,30 @@ Changed Files: coordination/TASK_BOARD.md, coordination/STATUS_LEDGER.md, coordi
 Tests: cmake --preset default on main; cmake --build --preset build-default on main; ctest --preset test-default on main (9/9 passed: she_smoke_tests, she_gameplay_contract_tests, she_data_contract_tests, she_platform_input_tests, she_scene_contract_tests, she_asset_contract_tests, she_renderer_contract_tests, she_physics_contract_tests, she_audio_contract_tests)
 Next Step: launch W11 UI + Debug Tools and W04 Scripting Host as the next parallel workstreams; keep W12 queued behind those authoring/runtime-inspection baselines
 
+Date: 2026-04-13
+Workstream: W04
+Owner: w04-codex
+Status: integrated
+Summary: W00 integrated the scripting-host checkpoint onto main as commit 4c27a9a and adopted the structured script module/binding/load/invocation contract as the scripting baseline for future gameplay features.
+Changed Files: Engine/Core/Include/SHE/Core/RuntimeServices.hpp, Engine/Scripting/*, Engine/AI/Source/AuthoringAiService.cpp, Game/Features/Bootstrap/*, Game/Source/Main.cpp, Tools/Sandbox/Source/Main.cpp, Tools/Sandbox/Source/SandboxLayer.cpp, Tools/Sandbox/Scripts/debug_tools.lua, Tests/CMakeLists.txt, Tests/Source/SmokeTests.cpp, Tests/Source/ScriptingHostTests.cpp, Tests/Source/BootstrapScriptRegistrationTests.cpp, Tests/Source/Scripts/tests_smoke_module.lua, coordination/HANDOFFS/2026-04-13-w04-scripting-host-checkpoint.md
+Tests: cmake --preset default; cmake --build --preset build-default; ctest --preset test-default on SHE-w04-scripting (11/11 passed); ctest --preset test-default on main after W04 integration remained green through W11 closeout
+Next Step: let W12 author gameplay scripts through ScriptModuleContract and routed gameplay commands instead of inventing feature-local scripting shims
+
+Date: 2026-04-13
+Workstream: W11
+Owner: w11-codex
+Status: integrated
+Summary: W00 integrated the debug runtime surface onto main as commit 4b242b9, aligning its UI contract test to the newly integrated W04 scripting surface and adopting the first stable runtime debug report baseline.
+Changed Files: Engine/Core/Include/SHE/Core/RuntimeServices.hpp, Engine/Physics/*, Engine/UI/*, Game/Source/Main.cpp, Tests/CMakeLists.txt, Tests/Source/SmokeTests.cpp, Tests/Source/UiContractTests.cpp, Tools/Sandbox/Source/Main.cpp, Tools/Sandbox/Source/SandboxLayer.*, coordination/HANDOFFS/2026-04-13-w11-debug-surface-bootstrap.md
+Tests: cmake --preset default on main; cmake --build --preset build-default on main; ctest --preset test-default on main (12/12 passed after W11 integration, including she_ui_contract_tests)
+Next Step: let W12 consume BuildLatestDebugReport and the physics/renderer inspection surfaces instead of inventing ad hoc slice-specific probes
+
+Date: 2026-04-13
+Workstream: W00
+Owner: current-codex
+Status: integrated
+Summary: Completed the scripting-and-debug system acceptance pass. W04 and W11 are now integrated on main, the combined runtime plus scripting/debug stack builds and tests cleanly as one branch, and W12 can formally start as the next vertical-slice workstream.
+Changed Files: coordination/TASK_BOARD.md, coordination/STATUS_LEDGER.md, coordination/INTEGRATION_REPORT.md, coordination/NEXT_PHASE_VERTICAL_SLICE_LAUNCH.md, docs/ARCHITECTURE_DECISIONS.md
+Tests: cmake --preset default on main; cmake --build --preset build-default on main; ctest --preset test-default on main (12/12 passed: she_smoke_tests, she_gameplay_contract_tests, she_data_contract_tests, she_platform_input_tests, she_scene_contract_tests, she_asset_contract_tests, she_renderer_contract_tests, she_physics_contract_tests, she_audio_contract_tests, she_scripting_host_tests, she_bootstrap_script_tests, she_ui_contract_tests)
+Next Step: launch W12 Vertical Slice Game on top of the fully integrated W01-W11 engine baseline
+

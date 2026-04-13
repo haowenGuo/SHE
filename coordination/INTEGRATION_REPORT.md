@@ -23,10 +23,10 @@ Track:
 - `W08` is integrated on `main` as commit `be7420d` and now defines the accepted visible SDL3 sprite/camera rendering baseline
 - `W09` is integrated on `main` as commit `0032f5d` and now defines the accepted Box2D fixed-step runtime baseline
 - `W10` is integrated on `main` as commit `ee89d32` and now defines the accepted miniaudio playback baseline
-- the playable-runtime wave is now complete on `main`, and the project can formally begin the scripting-and-debug implementation stage
-- `W11` is now ready because renderer and physics expose real runtime surfaces to inspect
-- `W04` remains ready and can now target a much more complete runtime baseline
-- `W12` should stay queued until `W04` and `W11` establish the scripting and debug-tooling surfaces the vertical slice depends on
+- `W04` is integrated on `main` as commit `4c27a9a` and now defines the accepted scripting host contract baseline
+- `W11` is integrated on `main` as commit `4b242b9` and now defines the accepted runtime debug surface baseline
+- the scripting-and-debug wave is now complete on `main`, and the project can formally begin the vertical-slice implementation stage
+- `W12` is now ready because all W01-W11 dependencies are integrated on `main`
 - `W00/main` remains the source of truth for task status, ledger entries, and integration notes
 
 ## Pending Interface Watchlist
@@ -97,11 +97,16 @@ Integrated playable-runtime checkpoints:
 - `W09` integrated as `0032f5d`
 - `W10` integrated as `ee89d32`
 
+Integrated authoring/debug checkpoints:
+
+- `W04` integrated as `4c27a9a`
+- `W11` integrated as `4b242b9`
+
 Recommended next launch order:
 
-1. launch `W11` UI + Debug Tools now that diagnostics, renderer, and physics all expose real runtime surfaces on `main`
-2. launch `W04` Scripting Host in parallel so the scripting boundary grows against the accepted gameplay/data/runtime contracts instead of stubs
-3. keep `W12` queued until `W11` and `W04` settle the authoring/debug surfaces the vertical slice depends on
+1. launch `W12` Vertical Slice Game now that the accepted W01-W11 engine baseline is complete on `main`
+2. keep `main` as the authoritative integration/control branch while W12 proves the full engine stack in one playable feature slice
+3. use the integrated scripting and debug surfaces rather than adding feature-local backdoors during slice implementation
 
 ## Integration Rules
 
