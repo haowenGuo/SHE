@@ -84,3 +84,19 @@ target_link_libraries(
 she_configure_target(she_physics_contract_tests)
 
 add_test(NAME she_physics_contract_tests COMMAND she_physics_contract_tests)
+
+add_executable(
+    she_audio_contract_tests
+    Source/AudioContractTests.cpp
+)
+
+target_link_libraries(
+    she_audio_contract_tests
+    PRIVATE
+        she_engine_audio
+        she_engine_assets
+        she_engine_gameplay
+)
+she_configure_target(she_audio_contract_tests)
+
+add_test(NAME she_audio_contract_tests COMMAND she_audio_contract_tests)

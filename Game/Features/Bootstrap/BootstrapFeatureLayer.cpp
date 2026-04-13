@@ -1,5 +1,6 @@
 #include "BootstrapFeatureLayer.hpp"
 
+#include "SHE/Audio/AudioPlaybackContract.hpp"
 #include "SHE/Core/Logger.hpp"
 
 namespace she
@@ -38,15 +39,29 @@ void BootstrapFeatureLayer::OnAttach(RuntimeServices& services)
         AssetMetadata{
             kInvalidAssetId,
             "audio/player_fire",
-            "Game/Features/Bootstrap/Data/player_fire.placeholder",
+            "Game/Features/Bootstrap/Data/player_fire.wav",
             "audio",
             "",
             "Game/Features/Bootstrap",
             "feature.bootstrap.player_fire_sfx",
             {"bootstrap", "player", "sfx"},
             {
-                {"trigger", "player_fire"},
-                {"usage", "combat"},
+                    {"trigger", "player_fire"},
+                    {"usage", "combat"},
+                }});
+    services.assets->RegisterAsset(
+        AssetMetadata{
+            kInvalidAssetId,
+            "audio/bootstrap_theme",
+            "Game/Features/Bootstrap/Data/bootstrap_theme.wav",
+            "audio",
+            "",
+            "Game/Features/Bootstrap",
+            "feature.bootstrap.theme_music",
+            {"bootstrap", "music"},
+            {
+                {"loop", "true"},
+                {"usage", "ambient"},
             }});
     services.renderer->RegisterMaterial(
         Material2DDescriptor{
@@ -108,9 +123,37 @@ void BootstrapFeatureLayer::OnAttach(RuntimeServices& services)
                 ++m_observedSpawnPulseCount;
             }
         });
+    m_spawnAudioSubscriptionId = services.gameplay->SubscribeToEvent(
+        "encounter",
+        "SpawnRequested",
+        [gameplay = services.gameplay](const GameplayEvent&)
+        {
+            gameplay->QueueEvent(
+                std::string(kAudioGameplayEventCategory),
+                std::string(kAudioPlayRequestedEvent),
+                BuildGameplayAudioPlayPayload(
+                    AudioPlaybackRequest{
+                        AudioPlaybackKind::Sound,
+                        "audio/player_fire",
+                        "sfx/player_fire",
+                        "sfx",
+                        false,
+                        0.85F}));
+        });
 
     services.gameplay->CreateTimer("bootstrap.spawn_pulse", 0.05, true);
     services.gameplay->QueueEvent("feature", "BootstrapAttached", "Bootstrap feature registered its contracts.");
+    services.gameplay->QueueEvent(
+        std::string(kAudioGameplayEventCategory),
+        std::string(kAudioPlayRequestedEvent),
+        BuildGameplayAudioPlayPayload(
+            AudioPlaybackRequest{
+                AudioPlaybackKind::Music,
+                "audio/bootstrap_theme",
+                "music/bootstrap",
+                "music",
+                true,
+                0.55F}));
 
     m_playerEntityId = services.scene->CreateEntity("Player");
     m_cameraEntityId = services.scene->CreateEntity("MainCamera");
@@ -204,6 +247,12 @@ void BootstrapFeatureLayer::OnRender(const TickContext& context)
 
 void BootstrapFeatureLayer::OnDetach(RuntimeServices& services)
 {
+    if (m_spawnAudioSubscriptionId != 0)
+    {
+        services.gameplay->UnsubscribeFromEvent(m_spawnAudioSubscriptionId);
+        m_spawnAudioSubscriptionId = 0;
+    }
+
     if (m_timerSubscriptionId != 0)
     {
         services.gameplay->UnsubscribeFromEvent(m_timerSubscriptionId);

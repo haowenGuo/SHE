@@ -4,7 +4,7 @@
 
 #include "SHE/AI/AuthoringAiService.hpp"
 #include "SHE/Assets/AssetManager.hpp"
-#include "SHE/Audio/NullAudioService.hpp"
+#include "SHE/Audio/MiniaudioAudioService.hpp"
 #include "SHE/Core/Application.hpp"
 #include "SHE/Data/DataService.hpp"
 #include "SHE/Diagnostics/DiagnosticsService.hpp"
@@ -32,7 +32,7 @@ she::RuntimeServices CreateSandboxRuntime()
     services.gameplay = std::make_shared<she::GameplayService>();
     services.renderer = std::make_shared<she::Renderer2DService>(services.assets, services.window);
     services.physics = std::make_shared<she::Box2DPhysicsService>(services.scene, services.gameplay);
-    services.audio = std::make_shared<she::NullAudioService>();
+    services.audio = std::make_shared<she::MiniaudioAudioService>(services.assets, services.gameplay);
     services.ui = std::make_shared<she::NullUiService>();
     services.scripting = std::make_shared<she::ScriptingService>();
     services.diagnostics = std::make_shared<she::DiagnosticsService>();
