@@ -173,3 +173,47 @@ target_link_libraries(
 she_configure_target(she_vertical_slice_flow_tests)
 
 add_test(NAME she_vertical_slice_flow_tests COMMAND she_vertical_slice_flow_tests)
+
+add_executable(
+    she_falling_blocks_logic_tests
+    Source/FallingBlocksLogicTests.cpp
+)
+
+target_link_libraries(
+    she_falling_blocks_logic_tests
+    PRIVATE
+        she_gameplay
+)
+she_configure_target(she_falling_blocks_logic_tests)
+
+add_test(NAME she_falling_blocks_logic_tests COMMAND she_falling_blocks_logic_tests)
+
+add_executable(
+    she_falling_blocks_smoke_tests
+    Source/FallingBlocksSmokeTests.cpp
+)
+
+target_link_libraries(
+    she_falling_blocks_smoke_tests
+    PRIVATE
+        she_gameplay
+        she_engine
+)
+she_configure_target(she_falling_blocks_smoke_tests)
+
+add_test(NAME she_falling_blocks_smoke_tests COMMAND she_falling_blocks_smoke_tests)
+
+add_executable(
+    she_falling_blocks_flow_tests
+    Source/FallingBlocksFlowTests.cpp
+)
+
+target_link_libraries(
+    she_falling_blocks_flow_tests
+    PRIVATE
+        she_gameplay
+        she_engine
+)
+she_configure_target(she_falling_blocks_flow_tests)
+
+add_test(NAME she_falling_blocks_flow_tests COMMAND she_falling_blocks_flow_tests)

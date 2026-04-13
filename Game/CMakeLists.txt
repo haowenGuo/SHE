@@ -2,6 +2,8 @@ add_library(
     she_gameplay
     STATIC
         Features/Bootstrap/BootstrapFeatureLayer.cpp
+        Features/FallingBlocks/FallingBlocksFeatureLayer.cpp
+        Features/FallingBlocks/FallingBlocksGame.cpp
         Features/VerticalSlice/VerticalSliceFeatureLayer.cpp
 )
 
