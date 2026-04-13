@@ -37,3 +37,13 @@ target_link_libraries(she_platform_input_tests PRIVATE she_engine_platform)
 she_configure_target(she_platform_input_tests)
 
 add_test(NAME she_platform_input_tests COMMAND she_platform_input_tests)
+
+add_executable(
+    she_scene_contract_tests
+    Source/SceneContractTests.cpp
+)
+
+target_link_libraries(she_scene_contract_tests PRIVATE she_engine_scene she_engine_core)
+she_configure_target(she_scene_contract_tests)
+
+add_test(NAME she_scene_contract_tests COMMAND she_scene_contract_tests)

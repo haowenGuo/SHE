@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SHE/Core/ApplicationConfig.hpp"
+#include "SHE/Core/MathTypes.hpp"
 #include "SHE/Core/Types.hpp"
 
 #include <functional>
@@ -206,6 +207,20 @@ public:
     virtual std::size_t GetAssetCount() const = 0;
 };
 
+struct SceneTransform
+{
+    Vector2 position{};
+    float rotationDegrees = 0.0F;
+    Vector2 scale{1.0F, 1.0F};
+};
+
+struct SceneEntityView
+{
+    EntityId entityId = kInvalidEntityId;
+    std::string entityName;
+    SceneTransform transform;
+};
+
 class ISceneService
 {
 public:
@@ -213,9 +228,17 @@ public:
 
     virtual void Initialize() = 0;
     virtual void Shutdown() = 0;
+    // Switching scenes replaces the active world contents for the service.
     virtual void SetActiveScene(std::string sceneName) = 0;
     virtual std::string_view GetActiveSceneName() const = 0;
     virtual EntityId CreateEntity(std::string entityName) = 0;
+    // DestroyEntity invalidates the handle immediately. UpdateSceneGraph prunes
+    // the backing storage at the scene boundary before presentation.
+    virtual bool DestroyEntity(EntityId entityId) = 0;
+    virtual bool HasEntity(EntityId entityId) const = 0;
+    virtual bool TryGetEntityView(EntityId entityId, SceneEntityView& outEntityView) const = 0;
+    virtual bool TrySetEntityTransform(EntityId entityId, const SceneTransform& transform) = 0;
+    virtual std::vector<SceneEntityView> ListEntities() const = 0;
     virtual std::size_t GetEntityCount() const = 0;
     virtual void UpdateSceneGraph(double deltaSeconds) = 0;
 };
