@@ -20,10 +20,13 @@ Track:
 - `W07` is integrated on `main` as commit `c4deb00` and now defines the accepted SDL3 window/input runtime shell baseline
 - `W05` is integrated on `main` as commit `d51b46e` and now defines the accepted scene/entity lifetime and query baseline
 - `W06` is integrated on `main` as commit `359b7a1` and now defines the accepted asset id/metadata/loader/handle baseline
-- the runtime spine is now complete on `main`, and the project can formally begin the playable-runtime implementation stage
-- `W08`, `W09`, and `W10` are now the active next-wave workstreams
-- `W04` can now move into a lower-priority authoring track because the runtime spine contracts are real on `main`
-- `W11` should still wait until renderer and physics expose stronger runtime surfaces to inspect
+- `W08` is integrated on `main` as commit `be7420d` and now defines the accepted visible SDL3 sprite/camera rendering baseline
+- `W09` is integrated on `main` as commit `0032f5d` and now defines the accepted Box2D fixed-step runtime baseline
+- `W10` is integrated on `main` as commit `ee89d32` and now defines the accepted miniaudio playback baseline
+- the playable-runtime wave is now complete on `main`, and the project can formally begin the scripting-and-debug implementation stage
+- `W11` is now ready because renderer and physics expose real runtime surfaces to inspect
+- `W04` remains ready and can now target a much more complete runtime baseline
+- `W12` should stay queued until `W04` and `W11` establish the scripting and debug-tooling surfaces the vertical slice depends on
 - `W00/main` remains the source of truth for task status, ledger entries, and integration notes
 
 ## Pending Interface Watchlist
@@ -88,12 +91,17 @@ Integrated runtime-spine checkpoints:
 - `W05` integrated as `d51b46e`
 - `W06` integrated as `359b7a1`
 
+Integrated playable-runtime checkpoints:
+
+- `W08` integrated as `be7420d`
+- `W09` integrated as `0032f5d`
+- `W10` integrated as `ee89d32`
+
 Recommended next launch order:
 
-1. launch `W08` Renderer2D first so the accepted scene, asset, and platform contracts become visibly executable on the main runtime path
-2. launch `W09` Physics2D second so fixed-step world updates can settle against the accepted scene boundary and the already integrated gameplay contracts
-3. launch `W10` Audio Runtime third because it depends on the accepted asset and platform baselines but can safely trail the first visible runtime proof by a small margin
-4. keep `W04` as an optional lower-priority authoring track and hold `W11` until renderer and physics have something substantive to inspect
+1. launch `W11` UI + Debug Tools now that diagnostics, renderer, and physics all expose real runtime surfaces on `main`
+2. launch `W04` Scripting Host in parallel so the scripting boundary grows against the accepted gameplay/data/runtime contracts instead of stubs
+3. keep `W12` queued until `W11` and `W04` settle the authoring/debug surfaces the vertical slice depends on
 
 ## Integration Rules
 

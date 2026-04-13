@@ -152,3 +152,39 @@ Changed Files: coordination/TASK_BOARD.md, coordination/STATUS_LEDGER.md, coordi
 Tests: cmake --preset default on main; cmake --build --preset build-default on main; ctest --preset test-default on main (she_smoke_tests, she_gameplay_contract_tests, she_data_contract_tests, she_platform_input_tests, she_scene_contract_tests, she_asset_contract_tests passed)
 Next Step: launch W08 Renderer2D, W09 Physics2D, and W10 Audio Runtime as the third-wave playable-runtime workstreams; W04 can move into a lower-priority authoring track now that the runtime spine is real
 
+Date: 2026-04-13
+Workstream: W08
+Owner: w08-codex
+Status: integrated
+Summary: W00 re-verified the visible renderer proof, integrated it onto main as commit be7420d, and adopted the SDL3-presented 2D sprite/camera path as the renderer baseline for downstream debug tooling.
+Changed Files: Engine/Core/Include/SHE/Core/RuntimeServices.hpp, Engine/Platform/*, Engine/Renderer/*, Game/Features/Bootstrap/BootstrapFeatureLayer.*, Game/Source/Main.cpp, Tests/CMakeLists.txt, Tests/Source/RendererContractTests.cpp, Tests/Source/SmokeTests.cpp, Tools/Sandbox/Source/Main.cpp, coordination/HANDOFFS/2026-04-13-w08-*.md
+Tests: cmake --preset default; cmake --build --preset build-default; ctest --preset test-default on SHE-w08-renderer (she_smoke_tests, she_gameplay_contract_tests, she_data_contract_tests, she_platform_input_tests, she_scene_contract_tests, she_asset_contract_tests, she_renderer_contract_tests passed)
+Next Step: let W11 inspect the accepted renderer frame/material/backend surface instead of building separate capture conventions
+
+Date: 2026-04-13
+Workstream: W09
+Owner: w09-codex
+Status: integrated
+Summary: W00 integrated the Box2D runtime slice onto main as commit 0032f5d and adopted the entity-keyed fixed-step physics body/collider contract as the physics baseline.
+Changed Files: Engine/Core/Include/SHE/Core/RuntimeServices.hpp, Engine/Physics/*, Game/Source/Main.cpp, Tests/CMakeLists.txt, Tests/Source/PhysicsContractTests.cpp, Tests/Source/SmokeTests.cpp, Tools/Sandbox/Source/Main.cpp, coordination/HANDOFFS/2026-04-13-w09-box2d-runtime-slice.md
+Tests: cmake --preset default; cmake --build --preset build-default; ctest --preset test-default on main after W09 integration (she_smoke_tests, she_gameplay_contract_tests, she_data_contract_tests, she_platform_input_tests, she_scene_contract_tests, she_asset_contract_tests, she_renderer_contract_tests, she_physics_contract_tests passed)
+Next Step: let W11 consume the accepted body/collider inspection surface rather than reaching into Box2D internals
+
+Date: 2026-04-13
+Workstream: W10
+Owner: w10-codex
+Status: integrated
+Summary: W00 integrated the miniaudio runtime slice onto main as commit ee89d32 and adopted the gameplay-event-driven playback path as the audio runtime baseline.
+Changed Files: Engine/Audio/*, Game/Features/Bootstrap/*, Game/Source/Main.cpp, Tests/CMakeLists.txt, Tests/Source/AudioContractTests.cpp, Tests/Source/SmokeTests.cpp, Tools/Sandbox/Source/Main.cpp, coordination/HANDOFFS/2026-04-13-w10-miniaudio-playback-runtime.md
+Tests: cmake --preset default; cmake --build --preset build-default; ctest --preset test-default on main after W10 integration (she_smoke_tests, she_gameplay_contract_tests, she_data_contract_tests, she_platform_input_tests, she_scene_contract_tests, she_asset_contract_tests, she_renderer_contract_tests, she_physics_contract_tests, she_audio_contract_tests passed)
+Next Step: let W11 surface accepted playback events/state, and keep W12 gameplay beats on the routed audio event contract instead of direct device control
+
+Date: 2026-04-13
+Workstream: W00
+Owner: current-codex
+Status: integrated
+Summary: Completed the playable-runtime system acceptance pass. W08, W09, and W10 are now integrated on main, the combined renderer/physics/audio runtime builds and tests cleanly as one branch, and the engine can move into the scripting-and-debug wave.
+Changed Files: coordination/TASK_BOARD.md, coordination/STATUS_LEDGER.md, coordination/INTEGRATION_REPORT.md, coordination/NEXT_PHASE_AUTHORING_DEBUG_LAUNCH.md
+Tests: cmake --preset default on main; cmake --build --preset build-default on main; ctest --preset test-default on main (9/9 passed: she_smoke_tests, she_gameplay_contract_tests, she_data_contract_tests, she_platform_input_tests, she_scene_contract_tests, she_asset_contract_tests, she_renderer_contract_tests, she_physics_contract_tests, she_audio_contract_tests)
+Next Step: launch W11 UI + Debug Tools and W04 Scripting Host as the next parallel workstreams; keep W12 queued behind those authoring/runtime-inspection baselines
+
