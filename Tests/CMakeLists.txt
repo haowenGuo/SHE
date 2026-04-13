@@ -129,3 +129,17 @@ target_link_libraries(
 she_configure_target(she_bootstrap_script_tests)
 
 add_test(NAME she_bootstrap_script_tests COMMAND she_bootstrap_script_tests)
+
+add_executable(
+    she_ui_contract_tests
+    Source/UiContractTests.cpp
+)
+
+target_link_libraries(
+    she_ui_contract_tests
+    PRIVATE
+        she_engine
+)
+she_configure_target(she_ui_contract_tests)
+
+add_test(NAME she_ui_contract_tests COMMAND she_ui_contract_tests)

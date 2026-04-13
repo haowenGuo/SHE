@@ -2,6 +2,8 @@
 
 #include "SHE/Core/Logger.hpp"
 
+#include <sstream>
+
 namespace she
 {
 void NullUiService::Initialize()
@@ -22,5 +24,15 @@ void NullUiService::BeginFrame(const FrameIndex frameIndex)
 
 void NullUiService::EndFrame()
 {
+}
+
+std::string NullUiService::BuildLatestDebugReport() const
+{
+    std::ostringstream stream;
+    stream << "ui_debug_report_version: 1\n";
+    stream << "implementation: null\n";
+    stream << "frame_index: " << m_lastFrameIndex << '\n';
+    stream << "status: unavailable\n";
+    return stream.str();
 }
 } // namespace she

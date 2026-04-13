@@ -59,4 +59,13 @@ void SandboxLayer::OnUpdate(const TickContext& context)
         SHE_LOG_INFO("Sandbox", "Second frame reached in sandbox runtime.");
     }
 }
+
+void SandboxLayer::OnUi(const TickContext& context)
+{
+    if (!m_loggedDebugSurface && context.frameIndex >= 1)
+    {
+        m_loggedDebugSurface = true;
+        SHE_LOG_INFO("Sandbox", context.services.ui->BuildLatestDebugReport());
+    }
+}
 } // namespace she

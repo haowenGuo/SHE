@@ -93,6 +93,21 @@ struct BodyRecord
     return value ? "true" : "false";
 }
 
+[[nodiscard]] const char* ToString(const PhysicsBodyType bodyType)
+{
+    switch (bodyType)
+    {
+    case PhysicsBodyType::Static:
+        return "static";
+    case PhysicsBodyType::Kinematic:
+        return "kinematic";
+    case PhysicsBodyType::Dynamic:
+        return "dynamic";
+    default:
+        return "unknown";
+    }
+}
+
 [[nodiscard]] ColliderRecord* ResolveColliderRecord(b2Fixture* fixture)
 {
     if (fixture == nullptr)
@@ -456,5 +471,67 @@ std::size_t Box2DPhysicsService::GetColliderCount() const
 std::size_t Box2DPhysicsService::GetStepCount() const
 {
     return m_impl->stepCount;
+}
+
+std::string Box2DPhysicsService::BuildDebugSummary() const
+{
+    std::ostringstream stream;
+    stream << "physics_debug_version: 1\n";
+    stream << "implementation: box2d\n";
+    stream << "body_count: " << m_impl->bodies.size() << '\n';
+    stream << "collider_count: " << m_impl->colliders.size() << '\n';
+    stream << "step_count: " << m_impl->stepCount << '\n';
+
+    std::size_t bodyIndex = 0;
+    for (const auto& [entityId, bodyRecord] : m_impl->bodies)
+    {
+        const b2Body* body = bodyRecord.body;
+
+        SceneEntityView entityView;
+        const bool hasEntityView = m_scene != nullptr && m_scene->TryGetEntityView(entityId, entityView);
+        const SceneTransform& transform = hasEntityView ? entityView.transform : bodyRecord.lastSceneTransform;
+        const std::string entityName = hasEntityView ? entityView.entityName : "unknown";
+
+        stream << "\n[body_" << bodyIndex++ << "]\n";
+        stream << "entity_id: " << entityId << '\n';
+        stream << "entity_name: " << entityName << '\n';
+        stream << "body_type: " << ToString(bodyRecord.definition.bodyType) << '\n';
+        stream << "position: " << transform.position.x << ',' << transform.position.y << '\n';
+        stream << "rotation_degrees: " << transform.rotationDegrees << '\n';
+        stream << "scale: " << transform.scale.x << ',' << transform.scale.y << '\n';
+        stream << "collider_count: " << bodyRecord.colliderIds.size() << '\n';
+
+        if (body != nullptr)
+        {
+            const b2Vec2 linearVelocity = body->GetLinearVelocity();
+            stream << "linear_velocity: " << linearVelocity.x << ',' << linearVelocity.y << '\n';
+            stream << "angular_velocity_degrees: " << RadiansToDegrees(body->GetAngularVelocity()) << '\n';
+            stream << "awake: " << BoolToString(body->IsAwake()) << '\n';
+        }
+        else
+        {
+            stream << "linear_velocity: 0,0\n";
+            stream << "angular_velocity_degrees: 0\n";
+            stream << "awake: false\n";
+        }
+    }
+
+    std::size_t colliderIndex = 0;
+    for (const auto& [colliderId, colliderRecord] : m_impl->colliders)
+    {
+        stream << "\n[collider_" << colliderIndex++ << "]\n";
+        stream << "collider_id: " << colliderId << '\n';
+        stream << "entity_id: " << colliderRecord.entityId << '\n';
+        stream << "half_extents: " << colliderRecord.definition.halfExtents.x << ','
+               << colliderRecord.definition.halfExtents.y << '\n';
+        stream << "offset: " << colliderRecord.definition.offset.x << ',' << colliderRecord.definition.offset.y << '\n';
+        stream << "rotation_degrees: " << colliderRecord.definition.rotationDegrees << '\n';
+        stream << "density: " << colliderRecord.definition.density << '\n';
+        stream << "friction: " << colliderRecord.definition.friction << '\n';
+        stream << "restitution: " << colliderRecord.definition.restitution << '\n';
+        stream << "sensor: " << BoolToString(colliderRecord.definition.isSensor) << '\n';
+    }
+
+    return stream.str();
 }
 } // namespace she

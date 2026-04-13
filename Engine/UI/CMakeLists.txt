@@ -1,6 +1,7 @@
 add_library(
     she_engine_ui
     STATIC
+        Source/DebugUiService.cpp
         Source/NullUiService.cpp
 )
 

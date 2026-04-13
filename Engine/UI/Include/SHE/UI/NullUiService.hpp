@@ -13,6 +13,7 @@ public:
     void Shutdown() override;
     void BeginFrame(FrameIndex frameIndex) override;
     void EndFrame() override;
+    [[nodiscard]] std::string BuildLatestDebugReport() const override;
 
 private:
     FrameIndex m_lastFrameIndex = 0;

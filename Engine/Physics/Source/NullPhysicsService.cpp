@@ -2,6 +2,8 @@
 
 #include "SHE/Core/Logger.hpp"
 
+#include <sstream>
+
 namespace she
 {
 void NullPhysicsService::Initialize()
@@ -45,6 +47,18 @@ void NullPhysicsService::Step(const double fixedTimeStep)
 {
     ++m_stepCount;
     m_lastFixedTimeStep = fixedTimeStep;
+}
+
+std::string NullPhysicsService::BuildDebugSummary() const
+{
+    std::ostringstream stream;
+    stream << "physics_debug_version: 1\n";
+    stream << "implementation: null\n";
+    stream << "body_count: 0\n";
+    stream << "collider_count: 0\n";
+    stream << "step_count: " << m_stepCount << '\n';
+    stream << "last_fixed_time_step: " << m_lastFixedTimeStep << '\n';
+    return stream.str();
 }
 
 std::size_t NullPhysicsService::GetStepCount() const

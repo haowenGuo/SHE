@@ -561,6 +561,7 @@ public:
     virtual PhysicsColliderId CreateBoxCollider(EntityId entityId, const PhysicsBoxColliderDefinition& definition) = 0;
     virtual bool DestroyCollider(PhysicsColliderId colliderId) = 0;
     virtual void Step(double fixedTimeStep) = 0;
+    virtual std::string BuildDebugSummary() const = 0;
 };
 
 class IAudioService
@@ -582,6 +583,7 @@ public:
     virtual void Shutdown() = 0;
     virtual void BeginFrame(FrameIndex frameIndex) = 0;
     virtual void EndFrame() = 0;
+    virtual std::string BuildLatestDebugReport() const = 0;
 };
 
 enum class ScriptModuleLoadState

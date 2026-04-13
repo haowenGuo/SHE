@@ -14,9 +14,11 @@ public:
 
     void OnAttach(RuntimeServices& services) override;
     void OnUpdate(const TickContext& context) override;
+    void OnUi(const TickContext& context) override;
 
 private:
     bool m_loggedSnapshot = false;
+    bool m_loggedDebugSurface = false;
 };
 } // namespace she
 

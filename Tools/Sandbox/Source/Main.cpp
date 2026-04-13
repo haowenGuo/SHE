@@ -15,7 +15,7 @@
 #include "SHE/Renderer/Renderer2DService.hpp"
 #include "SHE/Scene/SceneWorld.hpp"
 #include "SHE/Scripting/ScriptingService.hpp"
-#include "SHE/UI/NullUiService.hpp"
+#include "SHE/UI/DebugUiService.hpp"
 
 #include <memory>
 
@@ -33,7 +33,6 @@ she::RuntimeServices CreateSandboxRuntime()
     services.renderer = std::make_shared<she::Renderer2DService>(services.assets, services.window);
     services.physics = std::make_shared<she::Box2DPhysicsService>(services.scene, services.gameplay);
     services.audio = std::make_shared<she::MiniaudioAudioService>(services.assets, services.gameplay);
-    services.ui = std::make_shared<she::NullUiService>();
     services.scripting = std::make_shared<she::ScriptingService>(services.gameplay);
     services.diagnostics = std::make_shared<she::DiagnosticsService>();
     services.ai = std::make_shared<she::AuthoringAiService>(
@@ -44,6 +43,16 @@ she::RuntimeServices CreateSandboxRuntime()
         services.scene,
         services.assets,
         services.diagnostics);
+    services.ui = std::make_shared<she::DebugUiService>(
+        services.window,
+        services.assets,
+        services.scene,
+        services.data,
+        services.gameplay,
+        services.renderer,
+        services.physics,
+        services.diagnostics,
+        services.ai);
     return services;
 }
 } // namespace

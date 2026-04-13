@@ -20,6 +20,7 @@ public:
     [[nodiscard]] PhysicsColliderId CreateBoxCollider(EntityId entityId, const PhysicsBoxColliderDefinition& definition) override;
     bool DestroyCollider(PhysicsColliderId colliderId) override;
     void Step(double fixedTimeStep) override;
+    [[nodiscard]] std::string BuildDebugSummary() const override;
 
     [[nodiscard]] std::size_t GetStepCount() const;
 

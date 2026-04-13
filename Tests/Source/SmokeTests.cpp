@@ -13,7 +13,7 @@
 #include "SHE/Renderer/Renderer2DService.hpp"
 #include "SHE/Scene/SceneWorld.hpp"
 #include "SHE/Scripting/ScriptingService.hpp"
-#include "SHE/UI/NullUiService.hpp"
+#include "SHE/UI/DebugUiService.hpp"
 
 #include <iostream>
 #include <memory>
@@ -320,9 +320,10 @@ public:
         liveTextureHandleCountDuringRender = context.services.assets->GetLiveHandleCount(playerTextureAssetId);
     }
 
-    void OnUi(const she::TickContext&) override
+    void OnUi(const she::TickContext& context) override
     {
         ++uiCount;
+        latestUiDebugReport = context.services.ui->BuildLatestDebugReport();
     }
 
     void OnDetach(she::RuntimeServices& services) override
@@ -345,6 +346,10 @@ public:
         observedTrustedRecordCount = services.data->GetTrustedRecordCount();
         lastCompletedRenderFrame = services.renderer->GetLastCompletedFrame();
         liveTextureHandleCountAfterRender = services.assets->GetLiveHandleCount(playerTextureAssetId);
+        if (latestUiDebugReport.empty())
+        {
+            latestUiDebugReport = services.ui->BuildLatestDebugReport();
+        }
     }
 
     int attachCount = 0;
@@ -408,6 +413,7 @@ public:
     std::string aiContext;
     std::string scriptCatalog;
     std::string latestDiagnosticsReport;
+    std::string latestUiDebugReport;
     std::optional<she::RenderFrameSnapshot> lastCompletedRenderFrame;
 };
 
@@ -425,7 +431,6 @@ she::RuntimeServices CreateTestRuntime()
     she::AudioRuntimeOptions audioOptions;
     audioOptions.preferPlaybackDevice = false;
     services.audio = std::make_shared<she::MiniaudioAudioService>(services.assets, services.gameplay, audioOptions);
-    services.ui = std::make_shared<she::NullUiService>();
     services.scripting = std::make_shared<she::ScriptingService>(services.gameplay);
     services.diagnostics = std::make_shared<she::DiagnosticsService>();
     services.ai = std::make_shared<she::AuthoringAiService>(
@@ -436,6 +441,16 @@ she::RuntimeServices CreateTestRuntime()
         services.scene,
         services.assets,
         services.diagnostics);
+    services.ui = std::make_shared<she::DebugUiService>(
+        services.window,
+        services.assets,
+        services.scene,
+        services.data,
+        services.gameplay,
+        services.renderer,
+        services.physics,
+        services.diagnostics,
+        services.ai);
     return services;
 }
 } // namespace
@@ -686,6 +701,27 @@ int main(int, char**)
         std::cerr << "Observed record count: " << layerPtr->observedRecordCount << '\n';
         std::cerr << "Observed trusted record count: " << layerPtr->observedTrustedRecordCount << '\n';
         PrintMissingNeedles(missingAiContextNeedles);
+        return 1;
+    }
+
+    const auto missingUiDebugNeedles = CollectMissingNeedles(
+        layerPtr->latestUiDebugReport,
+        {"ui_debug_report_version: 1",
+         "[runtime_overview]",
+         "active_scene: SmokeScene",
+         "[renderer_backend]",
+         "[renderer]",
+         "scene_name: SmokeScene",
+         "[physics]",
+         "physics_debug_version: 1",
+         "[diagnostics]",
+         "diagnostics_report_version: 1",
+         "[authoring_context]",
+         "authoring_context_contract_version: 1"});
+    if (!missingUiDebugNeedles.empty())
+    {
+        std::cerr << "UI debug report was missing required runtime inspection sections.\n";
+        PrintMissingNeedles(missingUiDebugNeedles);
         return 1;
     }
 
