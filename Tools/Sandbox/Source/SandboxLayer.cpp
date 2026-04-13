@@ -19,9 +19,16 @@ void SandboxLayer::OnAttach(RuntimeServices& services)
         "Tools/Sandbox",
         "Inspection layer for engine runtime and authoring context.");
     services.data->RegisterSchema(
-        "sandbox.debug.panel",
-        "Schema for future sandbox inspection panels.",
-        {"id", "title", "widgets"});
+        DataSchemaContract{
+            "sandbox.debug.panel",
+            "Schema for future sandbox inspection panels.",
+            "Tools/Sandbox",
+            {
+                DataSchemaFieldContract{"id", "scalar", true, "Stable panel identifier."},
+                DataSchemaFieldContract{"title", "scalar", true, "Displayed panel title."},
+                DataSchemaFieldContract{"widgets", "list", true, "Widget identifiers shown inside the panel."},
+                DataSchemaFieldContract{"layout", "map", false, "Optional layout metadata for the panel."},
+            }});
     services.scripting->RegisterScriptModule(
         "sandbox.debug_tools",
         "Future Lua module for toggling debug panels and probes.");

@@ -1,8 +1,25 @@
 schema: feature.bootstrap.encounter
 description: Schema for a small encounter definition used by the bootstrap feature.
-required:
-  - id
-  - spawn_points
-  - enemy_refs
-  - reward_id
+owner: Game/Features/Bootstrap
+fields:
+  - name: id
+    kind: scalar
+    required: true
+    description: Stable encounter identifier.
+  - name: spawn_points
+    kind: list
+    required: true
+    description: Spawn markers used by the encounter.
+  - name: enemy_refs
+    kind: list
+    required: true
+    description: Enemy record references used by the encounter.
+  - name: reward_id
+    kind: scalar
+    required: true
+    description: Reward granted after completion.
+  - name: notes
+    kind: scalar
+    required: false
+    description: Optional designer-facing notes.
 

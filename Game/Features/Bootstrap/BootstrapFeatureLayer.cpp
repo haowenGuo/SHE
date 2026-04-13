@@ -29,14 +29,30 @@ void BootstrapFeatureLayer::OnAttach(RuntimeServices& services)
         "Reference feature module that documents the AI-native gameplay workflow.");
 
     services.data->RegisterSchema(
-        "feature.bootstrap.enemy",
-        "Schema for a simple enemy definition used by the bootstrap feature.",
-        {"id", "display_name", "max_health", "move_speed"});
+        DataSchemaContract{
+            "feature.bootstrap.enemy",
+            "Schema for a simple enemy definition used by the bootstrap feature.",
+            "Game/Features/Bootstrap",
+            {
+                DataSchemaFieldContract{"id", "scalar", true, "Stable enemy identifier."},
+                DataSchemaFieldContract{"display_name", "scalar", true, "Human-readable enemy name."},
+                DataSchemaFieldContract{"max_health", "scalar", true, "Maximum health value for the enemy."},
+                DataSchemaFieldContract{"move_speed", "scalar", true, "Base move speed for the enemy."},
+                DataSchemaFieldContract{"abilities", "list", false, "Optional ability identifiers for the enemy."},
+            }});
 
     services.data->RegisterSchema(
-        "feature.bootstrap.encounter",
-        "Schema for a room-sized encounter authored as data instead of hard-coded logic.",
-        {"id", "spawn_points", "enemy_refs", "reward_id"});
+        DataSchemaContract{
+            "feature.bootstrap.encounter",
+            "Schema for a room-sized encounter authored as data instead of hard-coded logic.",
+            "Game/Features/Bootstrap",
+            {
+                DataSchemaFieldContract{"id", "scalar", true, "Stable encounter identifier."},
+                DataSchemaFieldContract{"spawn_points", "list", true, "Spawn markers used by the encounter."},
+                DataSchemaFieldContract{"enemy_refs", "list", true, "Enemy record references used by the encounter."},
+                DataSchemaFieldContract{"reward_id", "scalar", true, "Reward granted after completion."},
+                DataSchemaFieldContract{"notes", "scalar", false, "Optional designer-facing notes."},
+            }});
 
     services.scripting->RegisterScriptModule(
         "bootstrap.spawn_rules",

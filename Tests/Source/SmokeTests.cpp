@@ -33,9 +33,14 @@ public:
             "Tests/Source",
             "Verifies that AI-native services are wired into the application.");
         services.data->RegisterSchema(
-            "tests.smoke.feature",
-            "Schema used to confirm that the data service participates in runtime initialization.",
-            {"id", "value"});
+            she::DataSchemaContract{
+                "tests.smoke.feature",
+                "Schema used to confirm that the data service participates in runtime initialization.",
+                "Tests/Source",
+                {
+                    she::DataSchemaFieldContract{"id", "scalar", true, "Stable test record identifier."},
+                    she::DataSchemaFieldContract{"value", "scalar", true, "Test payload field."},
+                }});
         services.scripting->RegisterScriptModule(
             "tests.smoke.module",
             "Placeholder module registered by the smoke test.");

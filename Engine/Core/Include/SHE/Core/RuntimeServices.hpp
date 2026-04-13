@@ -15,6 +15,72 @@ namespace she
 // engine modules. The goal is to let Core own the runtime sequencing while each
 // module is free to evolve its internal implementation later.
 
+enum class DataIssueSeverity
+{
+    Error,
+    Warning
+};
+
+struct DataValidationIssue
+{
+    DataIssueSeverity severity = DataIssueSeverity::Error;
+    std::string code;
+    std::string fieldPath;
+    std::string message;
+};
+
+struct DataSchemaFieldContract
+{
+    std::string fieldName;
+    std::string valueKind = "scalar";
+    bool required = false;
+    std::string description;
+};
+
+struct DataSchemaContract
+{
+    std::string schemaName;
+    std::string description;
+    std::string owningSystem;
+    std::vector<DataSchemaFieldContract> fields;
+};
+
+struct DataSchemaRegistrationResult
+{
+    std::string schemaName;
+    bool accepted = false;
+    std::vector<DataValidationIssue> issues;
+};
+
+struct DataLoadRequest
+{
+    std::string schemaName;
+    std::string recordId;
+    std::string sourcePath;
+    std::string yamlText;
+};
+
+struct DataLoadResult
+{
+    std::string schemaName;
+    std::string recordId;
+    std::string sourcePath;
+    bool parsed = false;
+    bool valid = false;
+    std::vector<std::string> discoveredFields;
+    std::vector<DataValidationIssue> issues;
+};
+
+struct DataRegistryEntry
+{
+    std::string recordId;
+    std::string schemaName;
+    std::string sourcePath;
+    bool trusted = false;
+    std::vector<std::string> discoveredFields;
+    std::size_t issueCount = 0;
+};
+
 class IWindowService
 {
 public:
@@ -86,10 +152,17 @@ public:
 
     virtual void Initialize() = 0;
     virtual void Shutdown() = 0;
-    virtual void RegisterSchema(std::string schemaName, std::string description, std::vector<std::string> requiredFields) = 0;
+    virtual DataSchemaRegistrationResult RegisterSchema(DataSchemaContract schema) = 0;
+    virtual DataLoadResult LoadRecord(const DataLoadRequest& request) = 0;
     virtual bool HasSchema(std::string_view schemaName) const = 0;
+    virtual bool HasTrustedRecord(std::string_view recordId) const = 0;
     virtual std::size_t GetSchemaCount() const = 0;
+    virtual std::size_t GetRecordCount() const = 0;
+    virtual std::size_t GetTrustedRecordCount() const = 0;
+    virtual std::vector<DataSchemaContract> ListSchemas() const = 0;
+    virtual std::vector<DataRegistryEntry> ListRecords() const = 0;
     virtual std::string DescribeSchemas() const = 0;
+    virtual std::string DescribeRegistry() const = 0;
 };
 
 // Gameplay commands are registered as stable authoring-facing verbs. The

@@ -1,8 +1,25 @@
 schema: feature.bootstrap.enemy
 description: Schema for a small enemy definition used by the bootstrap feature.
-required:
-  - id
-  - display_name
-  - max_health
-  - move_speed
+owner: Game/Features/Bootstrap
+fields:
+  - name: id
+    kind: scalar
+    required: true
+    description: Stable enemy identifier.
+  - name: display_name
+    kind: scalar
+    required: true
+    description: Human-readable enemy name.
+  - name: max_health
+    kind: scalar
+    required: true
+    description: Maximum health value for the enemy.
+  - name: move_speed
+    kind: scalar
+    required: true
+    description: Base move speed for the enemy.
+  - name: abilities
+    kind: list
+    required: false
+    description: Optional ability identifiers for the enemy.
 
