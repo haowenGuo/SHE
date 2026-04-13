@@ -9,13 +9,14 @@ The authoring context should contain:
 1. project intent
 2. active scene and entity count
 3. asset count
-4. registered engine/gameplay types
-5. registered feature modules
-6. registered schemas
-7. data registry summary and status
-8. current gameplay digest
-9. registered script modules
-10. latest frame diagnostics report
+4. asset registry and loader summary
+5. registered engine/gameplay types
+6. registered feature modules
+7. registered schemas
+8. data registry summary and status
+9. current gameplay digest
+10. registered script modules
+11. latest frame diagnostics report
 
 ## Current Exporter
 
@@ -52,6 +53,7 @@ The first stable W03 export uses the following outer structure:
 - `[runtime_state]`
 - `[module_counts]`
 - `[reflection_catalog]`
+- `[asset_registry]`
 - `[schema_catalog]`
 - `[data_registry]`
 - `[gameplay_state]`
@@ -66,10 +68,10 @@ Content-heavy sections use:
 with indented body lines so later Codex sessions can parse the outer section
 layout without guessing where nested catalogs or reports begin.
 
-`[schema_catalog]` and `[data_registry]` should be built from the stable
-`IDataService` contract rather than from ad hoc file scraping. That keeps
-schema and registry semantics owned by the data module while still making the
-result consumable by Codex.
+`[asset_registry]`, `[schema_catalog]`, and `[data_registry]` should be built
+from stable service contracts (`IAssetService` and `IDataService`) rather than
+from ad hoc file scraping. That keeps asset/schema/registry semantics owned by
+their modules while still making the result consumable by Codex.
 
 For the first-wave closeout, the expected data baseline is:
 

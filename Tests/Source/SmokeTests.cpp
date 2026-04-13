@@ -74,6 +74,60 @@ public:
     void OnAttach(she::RuntimeServices& services) override
     {
         ++attachCount;
+        services.assets->RegisterLoader(
+            she::AssetLoaderDescriptor{
+                "texture_placeholder",
+                "texture",
+                {".placeholder", ".png"},
+                "Smoke-test placeholder loader for texture-like assets."});
+        services.assets->RegisterLoader(
+            she::AssetLoaderDescriptor{
+                "audio_placeholder",
+                "audio",
+                {".placeholder", ".wav"},
+                "Smoke-test placeholder loader for audio-like assets."});
+        const she::AssetId playerTextureId = services.assets->RegisterAsset(
+            she::AssetMetadata{
+                she::kInvalidAssetId,
+                "textures/player_idle",
+                "Tests/Source/player_idle.placeholder",
+                "texture",
+                "",
+                "Tests/Source",
+                "tests.smoke.player_visual",
+                {"hero", "sprite"},
+                {
+                    {"usage", "player"},
+                    {"variant", "idle"},
+                }});
+        const she::AssetId playerFireId = services.assets->RegisterAsset(
+            she::AssetMetadata{
+                she::kInvalidAssetId,
+                "audio/player_fire",
+                "Tests/Source/player_fire.placeholder",
+                "audio",
+                "",
+                "Tests/Source",
+                "tests.smoke.player_fire_sfx",
+                {"combat", "sfx"},
+                {
+                    {"trigger", "player_fire"},
+                    {"usage", "combat"},
+                }});
+        observedAssetCountAfterAttach = services.assets->GetAssetCount();
+        hasTextureLoaderAfterAttach = services.assets->HasLoader("texture_placeholder");
+        hasAudioLoaderAfterAttach = services.assets->HasLoader("audio_placeholder");
+        const auto textureLoader = services.assets->ResolveLoader(playerTextureId);
+        const auto audioLoader = services.assets->ResolveLoader(playerFireId);
+        textureLoaderResolvedAfterAttach =
+            textureLoader.has_value() && textureLoader->loaderKey == "texture_placeholder";
+        audioLoaderResolvedAfterAttach =
+            audioLoader.has_value() && audioLoader->loaderKey == "audio_placeholder";
+        const she::AssetHandle smokeHandle = services.assets->AcquireAsset(playerTextureId);
+        liveHandleCountDuringAttach = services.assets->GetLiveHandleCount(playerTextureId);
+        services.assets->ReleaseAsset(smokeHandle);
+        liveHandleCountAfterRelease = services.assets->GetLiveHandleCount(playerTextureId);
+
         services.reflection->RegisterFeature(
             "SmokeTestFeature",
             "Tests/Source",
@@ -186,6 +240,9 @@ public:
     int uiCount = 0;
     std::size_t aiContextVersion = 0;
     std::size_t aiContextLength = 0;
+    std::size_t observedAssetCountAfterAttach = 0;
+    std::size_t liveHandleCountDuringAttach = 0;
+    std::size_t liveHandleCountAfterRelease = 0;
     std::size_t observedSchemaCountAfterAttach = 0;
     std::size_t observedRecordCountAfterAttach = 0;
     std::size_t observedTrustedRecordCountAfterAttach = 0;
@@ -197,6 +254,10 @@ public:
     bool hasEncounterSchemaAfterAttach = false;
     bool hasListedFeatureSchemaAfterAttach = false;
     bool hasListedEncounterSchemaAfterAttach = false;
+    bool hasTextureLoaderAfterAttach = false;
+    bool hasAudioLoaderAfterAttach = false;
+    bool textureLoaderResolvedAfterAttach = false;
+    bool audioLoaderResolvedAfterAttach = false;
     bool hasTrustedFeatureRecordAfterAttach = false;
     bool hasTrustedEncounterRecordAfterAttach = false;
     bool featureLoadParsed = false;
@@ -271,6 +332,22 @@ int main(int, char**)
         return 1;
     }
 
+    if (layerPtr->observedAssetCountAfterAttach != 2 || !layerPtr->hasTextureLoaderAfterAttach ||
+        !layerPtr->hasAudioLoaderAfterAttach || !layerPtr->textureLoaderResolvedAfterAttach ||
+        !layerPtr->audioLoaderResolvedAfterAttach || layerPtr->liveHandleCountDuringAttach != 1 ||
+        layerPtr->liveHandleCountAfterRelease != 0)
+    {
+        std::cerr << "Asset service did not preserve the expected registry and handle lifetime baseline.\n";
+        std::cerr << "Observed asset count after attach: " << layerPtr->observedAssetCountAfterAttach << '\n';
+        std::cerr << "Has texture loader: " << (layerPtr->hasTextureLoaderAfterAttach ? "true" : "false") << '\n';
+        std::cerr << "Has audio loader: " << (layerPtr->hasAudioLoaderAfterAttach ? "true" : "false") << '\n';
+        std::cerr << "Texture loader resolved: " << (layerPtr->textureLoaderResolvedAfterAttach ? "true" : "false") << '\n';
+        std::cerr << "Audio loader resolved: " << (layerPtr->audioLoaderResolvedAfterAttach ? "true" : "false") << '\n';
+        std::cerr << "Live handle count during attach: " << layerPtr->liveHandleCountDuringAttach << '\n';
+        std::cerr << "Live handle count after release: " << layerPtr->liveHandleCountAfterRelease << '\n';
+        return 1;
+    }
+
     if (!layerPtr->schemasAcceptedAfterAttach || layerPtr->observedSchemaCountAfterAttach != 2 ||
         !layerPtr->hasFeatureSchemaAfterAttach || !layerPtr->hasEncounterSchemaAfterAttach ||
         !layerPtr->hasListedFeatureSchemaAfterAttach || !layerPtr->hasListedEncounterSchemaAfterAttach)
@@ -333,6 +410,12 @@ int main(int, char**)
         layerPtr->aiContext,
         {"authoring_context_contract_version: 1",
          "[module_counts]",
+         "[asset_registry]",
+         "asset_registry_version: 1",
+         "asset_count: 2",
+         "loader_count: 2",
+         "textures/player_idle",
+         "audio/player_fire",
          "[schema_catalog]",
          "registered_schemas: 2",
          "data_records: 2",

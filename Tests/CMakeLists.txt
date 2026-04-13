@@ -47,3 +47,13 @@ target_link_libraries(she_scene_contract_tests PRIVATE she_engine_scene she_engi
 she_configure_target(she_scene_contract_tests)
 
 add_test(NAME she_scene_contract_tests COMMAND she_scene_contract_tests)
+
+add_executable(
+    she_asset_contract_tests
+    Source/AssetContractTests.cpp
+)
+
+target_link_libraries(she_asset_contract_tests PRIVATE she_engine_assets)
+she_configure_target(she_asset_contract_tests)
+
+add_test(NAME she_asset_contract_tests COMMAND she_asset_contract_tests)

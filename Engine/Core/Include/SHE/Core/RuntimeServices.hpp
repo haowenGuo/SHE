@@ -6,6 +6,7 @@
 
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -178,6 +179,59 @@ struct WindowState
     bool resizedThisFrame = false;
 };
 
+struct AssetMetadataProperty
+{
+    std::string key;
+    std::string value;
+};
+
+struct AssetMetadata
+{
+    AssetId assetId = kInvalidAssetId;
+    std::string logicalName;
+    std::string sourcePath;
+    std::string assetType = "generic";
+    std::string loaderKey;
+    std::string owningSystem;
+    std::string sourceRecordId;
+    std::vector<std::string> tags;
+    std::vector<AssetMetadataProperty> properties;
+};
+
+struct AssetLoaderDescriptor
+{
+    std::string loaderKey;
+    std::string assetType = "generic";
+    std::vector<std::string> supportedExtensions;
+    std::string description;
+};
+
+struct AssetHandle
+{
+    AssetId assetId = kInvalidAssetId;
+    std::size_t leaseId = 0;
+
+    [[nodiscard]] bool IsValid() const
+    {
+        return assetId != kInvalidAssetId && leaseId != 0;
+    }
+};
+
+struct AssetRegistryEntry
+{
+    AssetId assetId = kInvalidAssetId;
+    std::string logicalName;
+    std::string sourcePath;
+    std::string assetType = "generic";
+    std::string declaredLoaderKey;
+    std::string resolvedLoaderKey;
+    std::string owningSystem;
+    std::string sourceRecordId;
+    std::vector<std::string> tags;
+    std::vector<AssetMetadataProperty> properties;
+    std::size_t liveHandleCount = 0;
+};
+
 class IWindowService
 {
 public:
@@ -203,7 +257,23 @@ public:
     virtual void Initialize() = 0;
     virtual void Shutdown() = 0;
     virtual AssetId RegisterAsset(std::string logicalName, std::string sourcePath) = 0;
+    virtual AssetId RegisterAsset(AssetMetadata metadata) = 0;
+    virtual void RegisterLoader(AssetLoaderDescriptor descriptor) = 0;
     virtual bool HasAsset(std::string_view logicalName) const = 0;
+    virtual bool HasLoader(std::string_view loaderKey) const = 0;
+    virtual AssetId FindAssetId(std::string_view logicalName) const = 0;
+    virtual std::optional<AssetMetadata> FindAssetMetadata(AssetId assetId) const = 0;
+    virtual std::optional<AssetLoaderDescriptor> ResolveLoader(AssetId assetId) const = 0;
+    // AssetHandle is a lease token rather than a typed resource view. W08/W10
+    // can build renderer/audio-specific wrappers on top without changing the
+    // stable asset identity and lifetime rules.
+    virtual AssetHandle AcquireAsset(AssetId assetId) = 0;
+    virtual void ReleaseAsset(AssetHandle handle) = 0;
+    virtual std::size_t GetLiveHandleCount(AssetId assetId) const = 0;
+    virtual std::vector<AssetRegistryEntry> ListAssets() const = 0;
+    virtual std::vector<AssetLoaderDescriptor> ListLoaders() const = 0;
+    virtual std::string DescribeRegistry() const = 0;
+    virtual std::string DescribeLoaders() const = 0;
     virtual std::size_t GetAssetCount() const = 0;
 };
 

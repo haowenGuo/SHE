@@ -78,6 +78,86 @@ std::string JoinFields(const std::vector<std::string>& fields)
     return stream.str();
 }
 
+std::string JoinAssetProperties(const std::vector<AssetMetadataProperty>& properties)
+{
+    std::ostringstream stream;
+    if (properties.empty())
+    {
+        stream << "<none>";
+        return stream.str();
+    }
+
+    for (std::size_t index = 0; index < properties.size(); ++index)
+    {
+        stream << properties[index].key << '=' << properties[index].value;
+        if (index + 1 < properties.size())
+        {
+            stream << ", ";
+        }
+    }
+
+    return stream.str();
+}
+
+std::string BuildAssetCatalog(const IAssetService& assets)
+{
+    const auto entries = assets.ListAssets();
+    const auto loaders = assets.ListLoaders();
+    const std::string describedRegistry = assets.DescribeRegistry();
+    const std::string describedLoaders = assets.DescribeLoaders();
+
+    std::size_t liveHandleCount = 0;
+    for (const auto& entry : entries)
+    {
+        liveHandleCount += entry.liveHandleCount;
+    }
+
+    std::ostringstream stream;
+    stream << "asset_registry_version: 1\n";
+    stream << "asset_count: " << entries.size() << '\n';
+    stream << "loader_count: " << loaders.size() << '\n';
+    stream << "live_handle_count: " << liveHandleCount << '\n';
+
+    for (std::size_t index = 0; index < entries.size(); ++index)
+    {
+        const auto& entry = entries[index];
+        stream << "\n[asset_" << index << "]\n";
+        stream << "asset_id: " << entry.assetId << '\n';
+        stream << "logical_name: " << entry.logicalName << '\n';
+        stream << "source_path: " << entry.sourcePath << '\n';
+        stream << "asset_type: " << entry.assetType << '\n';
+        stream << "declared_loader_key: " << (entry.declaredLoaderKey.empty() ? "<auto>" : entry.declaredLoaderKey) << '\n';
+        stream << "resolved_loader_key: " << (entry.resolvedLoaderKey.empty() ? "<unresolved>" : entry.resolvedLoaderKey) << '\n';
+        stream << "owning_system: " << entry.owningSystem << '\n';
+        stream << "source_record_id: " << (entry.sourceRecordId.empty() ? "<none>" : entry.sourceRecordId) << '\n';
+        stream << "tags: " << JoinFields(entry.tags) << '\n';
+        stream << "properties: " << JoinAssetProperties(entry.properties) << '\n';
+        stream << "live_handle_count: " << entry.liveHandleCount << '\n';
+    }
+
+    for (std::size_t index = 0; index < loaders.size(); ++index)
+    {
+        const auto& loader = loaders[index];
+        stream << "\n[loader_" << index << "]\n";
+        stream << "loader_key: " << loader.loaderKey << '\n';
+        stream << "asset_type: " << loader.assetType << '\n';
+        stream << "supported_extensions: " << JoinFields(loader.supportedExtensions) << '\n';
+        stream << "description: " << (loader.description.empty() ? "<none>" : loader.description) << '\n';
+    }
+
+    stream << "\n[registry_report]\n";
+    stream << "line_count: " << CountNonEmptyLines(describedRegistry) << '\n';
+    stream << "content:\n";
+    AppendIndentedBlock(stream, describedRegistry);
+
+    stream << "\n[loader_report]\n";
+    stream << "line_count: " << CountNonEmptyLines(describedLoaders) << '\n';
+    stream << "content:\n";
+    AppendIndentedBlock(stream, describedLoaders);
+
+    return stream.str();
+}
+
 std::string BuildSchemaCatalog(
     const std::vector<DataSchemaContract>& schemas,
     const std::string_view describedSchemas)
@@ -196,6 +276,7 @@ void AuthoringAiService::RefreshContext(const FrameIndex frameIndex)
 {
     const std::size_t nextContextVersion = m_contextVersion + 1;
     const std::string reflectionCatalog = m_reflection->BuildTypeCatalog();
+    const std::string assetCatalog = BuildAssetCatalog(*m_assets);
     const auto schemas = m_data->ListSchemas();
     const std::string schemaCatalog = BuildSchemaCatalog(schemas, m_data->DescribeSchemas());
     const std::string dataRegistry = BuildDataRegistryCatalog(*m_data);
@@ -228,6 +309,7 @@ void AuthoringAiService::RefreshContext(const FrameIndex frameIndex)
     stream << "captured_diagnostic_frames: " << m_diagnostics->GetCapturedFrameCount() << '\n';
 
     AppendContentSection(stream, "reflection_catalog", reflectionCatalog);
+    AppendContentSection(stream, "asset_registry", assetCatalog);
     AppendContentSection(stream, "schema_catalog", schemaCatalog);
     AppendContentSection(stream, "data_registry", dataRegistry);
     AppendContentSection(stream, "gameplay_state", gameplayDigest);

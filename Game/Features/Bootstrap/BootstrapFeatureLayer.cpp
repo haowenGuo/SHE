@@ -15,11 +15,33 @@ void BootstrapFeatureLayer::OnAttach(RuntimeServices& services)
 
     services.scene->SetActiveScene("BootstrapArena");
     services.assets->RegisterAsset(
-        "textures/player_idle",
-        "Game/Features/Bootstrap/Data/player_idle.placeholder");
+        AssetMetadata{
+            kInvalidAssetId,
+            "textures/player_idle",
+            "Game/Features/Bootstrap/Data/player_idle.placeholder",
+            "texture",
+            "",
+            "Game/Features/Bootstrap",
+            "feature.bootstrap.player_visual",
+            {"bootstrap", "player", "sprite"},
+            {
+                {"usage", "player"},
+                {"variant", "idle"},
+            }});
     services.assets->RegisterAsset(
-        "audio/player_fire",
-        "Game/Features/Bootstrap/Data/player_fire.placeholder");
+        AssetMetadata{
+            kInvalidAssetId,
+            "audio/player_fire",
+            "Game/Features/Bootstrap/Data/player_fire.placeholder",
+            "audio",
+            "",
+            "Game/Features/Bootstrap",
+            "feature.bootstrap.player_fire_sfx",
+            {"bootstrap", "player", "sfx"},
+            {
+                {"trigger", "player_fire"},
+                {"usage", "combat"},
+            }});
 
     services.reflection->RegisterType("component", "TransformComponent", "Spatial transform for 2D entities.");
     services.reflection->RegisterType("service", "GameplayService", "Central event, command, and timer runtime.");
