@@ -79,6 +79,9 @@ Open integration blockers:
 - `W02` has not yet checkpointed its accepted slice as a branch commit after the latest acceptance pass.
 - `W03` has not yet checkpointed its final merged slice as a branch commit after the latest acceptance pass.
 - `W03` currently exposes the narrower `IDataService` surface (`RegisterSchema(string, description, requiredFields)`) rather than the richer W02 load/validation contract, so the combined data+diagnostics integration still needs one explicit owner-driven merge.
+- explicit closeout directives now live in:
+  - `coordination/WORKSTREAMS/W02_closeout-directive.md`
+  - `coordination/WORKSTREAMS/W03_closeout-directive.md`
 
 Recommended integration order:
 

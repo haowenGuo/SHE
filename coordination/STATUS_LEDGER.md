@@ -80,3 +80,12 @@ Changed Files: coordination/STATUS_LEDGER.md, coordination/INTEGRATION_REPORT.md
 Tests: ctest --preset test-default on main (2/2 passed); ctest --preset test-default on SHE-w02-data (3/3 passed); ctest --preset test-default on SHE-w03-diagnostics (2/2 passed)
 Next Step: finish the W02/W03 integration sprint first, then start the core runtime wave with W07, followed by W05 and W06 once the data and diagnostics surfaces are integrated on main
 
+Date: 2026-04-13
+Workstream: W00
+Owner: current-codex
+Status: integrated
+Summary: Published explicit W02 and W03 closeout directives so the remaining first-wave integration work can be executed directly from repository documents without re-explaining the assignment in chat.
+Changed Files: coordination/WORKSTREAMS/W02_closeout-directive.md, coordination/WORKSTREAMS/W03_closeout-directive.md, coordination/INTEGRATION_REPORT.md, coordination/STATUS_LEDGER.md
+Tests: none required; coordination-only update
+Next Step: have W02 checkpoint the accepted data-contract slice, then have W03 rebase onto that accepted W02 commit and produce the final diagnostics/AI-context closeout commit
+
