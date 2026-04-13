@@ -9,7 +9,7 @@ namespace she
 {
 // AuthoringAiService is not an online LLM runtime. It is the engine-facing
 // context exporter that packages the current project's known contracts into a
-// concise authoring snapshot for Codex or future AI tooling.
+// concise, read-only authoring snapshot for Codex or future AI tooling.
 class AuthoringAiService final : public IAIService
 {
 public:
@@ -38,6 +38,8 @@ private:
     std::shared_ptr<IAssetService> m_assets;
     std::shared_ptr<IDiagnosticsService> m_diagnostics;
     std::string m_authoringIntent = "Build gameplay features through engine contracts and data schemas.";
+    // The cached export is rebuilt once per frame so tooling can inspect a
+    // stable snapshot without asking subsystems to re-run expensive formatting.
     std::string m_cachedContext;
     std::size_t m_contextVersion = 0;
 };

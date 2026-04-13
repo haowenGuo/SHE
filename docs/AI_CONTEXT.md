@@ -12,9 +12,10 @@ The authoring context should contain:
 4. registered engine/gameplay types
 5. registered feature modules
 6. registered schemas
-7. current gameplay digest
-8. registered script modules
-9. latest frame diagnostics report
+7. data registry summary and status
+8. current gameplay digest
+9. registered script modules
+10. latest frame diagnostics report
 
 ## Current Exporter
 
@@ -37,3 +38,71 @@ and gathers data from:
 3. Game features should register metadata instead of forcing AI tools to scrape
    random files.
 4. Data changes should be discoverable through schema registration.
+5. The data contract should stay owned by `IDataService`; AI context should
+   summarize it rather than replacing it with AI-only formatting.
+
+## Stable Output Shape
+
+The first stable W03 export uses the following outer structure:
+
+- `authoring_context_contract_version`
+- `context_version`
+- `frame_index`
+- `[project]`
+- `[runtime_state]`
+- `[module_counts]`
+- `[reflection_catalog]`
+- `[schema_catalog]`
+- `[data_registry]`
+- `[gameplay_state]`
+- `[script_catalog]`
+- `[latest_frame_report]`
+
+Content-heavy sections use:
+
+- `line_count`
+- `content:`
+
+with indented body lines so later Codex sessions can parse the outer section
+layout without guessing where nested catalogs or reports begin.
+
+`[schema_catalog]` and `[data_registry]` should be built from the stable
+`IDataService` contract rather than from ad hoc file scraping. That keeps
+schema and registry semantics owned by the data module while still making the
+result consumable by Codex.
+
+For the first-wave closeout, the expected data baseline is:
+
+- `DataSchemaFieldContract`
+- `DataSchemaRegistrationResult`
+- `DataRegistryEntry`
+- `RegisterSchema(DataSchemaContract)`
+- `LoadRecord(const DataLoadRequest&)`
+- `HasSchema(std::string_view)`
+- `HasTrustedRecord(std::string_view)`
+- `GetSchemaCount()`
+- `GetRecordCount()`
+- `GetTrustedRecordCount()`
+- `ListSchemas()`
+- `ListRecords()`
+- `DescribeSchemas()`
+- `DescribeRegistry()`
+
+The AI exporter should build its schema and registry sections on top of those
+contracts instead of narrowing the data module back to a schema-only view or
+inventing an AI-only replacement contract.
+
+## Diagnostics Report Shape
+
+`[latest_frame_report]` now wraps a stable diagnostics report with:
+
+- `diagnostics_report_version`
+- `captured_frames`
+- `frame_index`
+- `phase_count`
+- `contains_gameplay_activity`
+- `[frame_summary]`
+- one `[phase_<index>]` section per recorded phase
+
+This keeps tracing readable while making command and event capture visible from
+the frame narrative instead of only from ad hoc logs.

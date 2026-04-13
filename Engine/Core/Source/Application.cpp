@@ -4,11 +4,48 @@
 #include "SHE/Core/TickContext.hpp"
 
 #include <exception>
+#include <sstream>
 #include <stdexcept>
 #include <utility>
 
 namespace she
 {
+namespace
+{
+std::string BuildPlatformSummary(RuntimeServices& services)
+{
+    std::ostringstream stream;
+    stream << "window_events_pumped=true\n";
+    stream << "window_should_close=" << (services.window->ShouldClose() ? "true" : "false");
+    return stream.str();
+}
+
+std::string BuildFixedUpdateSummary(RuntimeServices& services, const std::size_t fixedStepCount)
+{
+    std::ostringstream stream;
+    stream << "fixed_steps=" << fixedStepCount << '\n';
+    stream << "timer_count=" << services.gameplay->GetTimerCount() << '\n';
+    stream << "pending_commands_before_update=" << services.gameplay->GetPendingCommandCount();
+    return stream.str();
+}
+
+std::string BuildPresentationSummary(RuntimeServices& services)
+{
+    std::ostringstream stream;
+    stream << "active_scene=" << services.scene->GetActiveSceneName() << '\n';
+    stream << "entity_count=" << services.scene->GetEntityCount() << '\n';
+    stream << "ui_frame_submitted=true";
+    return stream.str();
+}
+
+std::string BuildAudioSummary(const double deltaSeconds)
+{
+    std::ostringstream stream;
+    stream << "delta_seconds=" << deltaSeconds;
+    return stream.str();
+}
+} // namespace
+
 Application::Application(ApplicationConfig config, RuntimeServices services)
     : m_config(std::move(config))
     , m_services(std::move(services))
@@ -69,12 +106,12 @@ int Application::Run()
         {
             m_services.diagnostics->BeginFrame(m_frameIndex);
             m_services.window->PumpEvents();
-            m_services.diagnostics->RecordPhase("Platform", "Window events pumped.");
+            m_services.diagnostics->RecordPhase("Platform", BuildPlatformSummary(m_services));
             const FrameSchedule schedule = m_clock.AdvanceFrame();
             m_services.gameplay->BeginFrame(m_frameIndex);
 
             RunFixedUpdates(schedule.fixedSteps);
-            m_services.diagnostics->RecordPhase("FixedUpdate", "Fixed-step simulation advanced.");
+            m_services.diagnostics->RecordPhase("FixedUpdate", BuildFixedUpdateSummary(m_services, schedule.fixedSteps));
 
             TickContext updateContext{
                 schedule.deltaSeconds,
@@ -92,7 +129,7 @@ int Application::Run()
             m_services.gameplay->FlushCommands();
             m_services.scripting->Update(schedule.deltaSeconds);
             m_services.scene->UpdateSceneGraph(schedule.deltaSeconds);
-            m_services.diagnostics->RecordPhase("Gameplay", "Gameplay, scripting, and scene graph updated.");
+            m_services.diagnostics->RecordPhase("Gameplay", m_services.gameplay->BuildGameplayDigest());
 
             m_services.renderer->BeginFrame(m_frameIndex);
             for (const auto& layer : m_layers.GetLayers())
@@ -112,9 +149,9 @@ int Application::Run()
             m_services.ui->EndFrame();
 
             m_services.renderer->EndFrame();
-            m_services.diagnostics->RecordPhase("Presentation", "Renderer and UI completed frame submission.");
+            m_services.diagnostics->RecordPhase("Presentation", BuildPresentationSummary(m_services));
             m_services.audio->Update(schedule.deltaSeconds);
-            m_services.diagnostics->RecordPhase("Audio", "Audio service consumed the frame delta.");
+            m_services.diagnostics->RecordPhase("Audio", BuildAudioSummary(schedule.deltaSeconds));
             m_services.diagnostics->EndFrame();
             m_services.ai->RefreshContext(m_frameIndex);
 
