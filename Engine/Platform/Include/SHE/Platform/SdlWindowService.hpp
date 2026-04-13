@@ -2,14 +2,14 @@
 
 #include "SHE/Core/RuntimeServices.hpp"
 
+#include <array>
 #include <string>
+
+struct SDL_Window;
 
 namespace she
 {
-// NullWindowService is the first bootstrap implementation of the platform layer.
-// It does not create a real window. Instead it gives the application loop a
-// stable lifecycle surface until SDL3 is integrated in the next phase.
-class NullWindowService final : public IWindowService
+class SdlWindowService final : public IWindowService
 {
 public:
     void Initialize(const ApplicationConfig& config) override;
@@ -24,10 +24,20 @@ public:
     void Shutdown() override;
 
 private:
+    static constexpr std::size_t kKeyCount = static_cast<std::size_t>(KeyCode::Count);
+    static constexpr std::size_t kPointerButtonCount = static_cast<std::size_t>(PointerButton::Count);
+
+    void ResetFrameSnapshot();
+    void UpdateWindowStateFromSdl();
+
+    SDL_Window* m_window = nullptr;
+    std::array<ButtonState, kKeyCount> m_keyStates{};
+    std::array<ButtonState, kPointerButtonCount> m_pointerButtonStates{};
+    PointerState m_pointerState{};
+    WindowState m_windowState{};
     std::string m_title;
+    bool m_sdlInitialized = false;
     bool m_shouldClose = false;
     std::size_t m_pumpCount = 0;
-    WindowState m_windowState{};
 };
 } // namespace she
-

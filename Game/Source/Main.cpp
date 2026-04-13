@@ -1,3 +1,5 @@
+#include <SDL3/SDL_main.h>
+
 #include "Bootstrap/BootstrapFeatureLayer.hpp"
 
 #include "SHE/AI/AuthoringAiService.hpp"
@@ -8,7 +10,7 @@
 #include "SHE/Diagnostics/DiagnosticsService.hpp"
 #include "SHE/Gameplay/GameplayService.hpp"
 #include "SHE/Physics/NullPhysicsService.hpp"
-#include "SHE/Platform/NullWindowService.hpp"
+#include "SHE/Platform/SdlWindowService.hpp"
 #include "SHE/Reflection/ReflectionService.hpp"
 #include "SHE/Renderer/NullRendererService.hpp"
 #include "SHE/Scene/SceneWorld.hpp"
@@ -22,7 +24,7 @@ namespace
 she::RuntimeServices CreateBootstrapRuntime()
 {
     she::RuntimeServices services;
-    services.window = std::make_shared<she::NullWindowService>();
+    services.window = std::make_shared<she::SdlWindowService>();
     services.assets = std::make_shared<she::AssetManager>();
     services.scene = std::make_shared<she::SceneWorld>();
     services.reflection = std::make_shared<she::ReflectionService>();
@@ -46,11 +48,12 @@ she::RuntimeServices CreateBootstrapRuntime()
 }
 } // namespace
 
-int main()
+int main(int, char**)
 {
     she::ApplicationConfig config;
     config.applicationName = "SHE Game";
-    config.maxFrames = 4;
+    config.useDeterministicFrameTiming = false;
+    config.maxFrames = 0;
 
     she::Application app(config, CreateBootstrapRuntime());
     app.PushLayer(std::make_unique<she::BootstrapFeatureLayer>());

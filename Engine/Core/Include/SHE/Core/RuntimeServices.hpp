@@ -81,6 +81,102 @@ struct DataRegistryEntry
     std::size_t issueCount = 0;
 };
 
+enum class KeyCode
+{
+    Unknown = 0,
+    A,
+    B,
+    C,
+    D,
+    E,
+    F,
+    G,
+    H,
+    I,
+    J,
+    K,
+    L,
+    M,
+    N,
+    O,
+    P,
+    Q,
+    R,
+    S,
+    T,
+    U,
+    V,
+    W,
+    X,
+    Y,
+    Z,
+    Digit0,
+    Digit1,
+    Digit2,
+    Digit3,
+    Digit4,
+    Digit5,
+    Digit6,
+    Digit7,
+    Digit8,
+    Digit9,
+    Escape,
+    Enter,
+    Space,
+    Tab,
+    Backspace,
+    Up,
+    Down,
+    Left,
+    Right,
+    ShiftLeft,
+    ShiftRight,
+    ControlLeft,
+    ControlRight,
+    AltLeft,
+    AltRight,
+    Count
+};
+
+enum class PointerButton
+{
+    Left = 0,
+    Middle,
+    Right,
+    X1,
+    X2,
+    Count
+};
+
+struct ButtonState
+{
+    bool isDown = false;
+    bool pressed = false;
+    bool released = false;
+};
+
+struct PointerState
+{
+    int x = 0;
+    int y = 0;
+    int deltaX = 0;
+    int deltaY = 0;
+    float wheelX = 0.0F;
+    float wheelY = 0.0F;
+};
+
+struct WindowState
+{
+    std::uint32_t windowId = 0;
+    int width = 0;
+    int height = 0;
+    bool hasKeyboardFocus = false;
+    bool hasMouseFocus = false;
+    bool minimized = false;
+    bool closeRequested = false;
+    bool resizedThisFrame = false;
+};
+
 class IWindowService
 {
 public:
@@ -90,6 +186,11 @@ public:
     virtual void PumpEvents() = 0;
     virtual bool ShouldClose() const = 0;
     virtual void RequestClose() = 0;
+    virtual ButtonState GetKeyState(KeyCode key) const = 0;
+    virtual ButtonState GetPointerButtonState(PointerButton button) const = 0;
+    virtual PointerState GetPointerState() const = 0;
+    virtual WindowState GetWindowState() const = 0;
+    virtual std::size_t GetPumpCount() const = 0;
     virtual void Shutdown() = 0;
 };
 

@@ -13,6 +13,7 @@ struct ApplicationConfig
     std::string applicationName = "SHE";
     int windowWidth = 1280;
     int windowHeight = 720;
+    bool startWindowHidden = false;
 
     // The bootstrap repository runs with deterministic timing by default so
     // tests and early engine experiments are stable and easy to reason about.

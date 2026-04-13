@@ -1,3 +1,5 @@
+#include <SDL3/SDL_main.h>
+
 #include "SHE/Gameplay/GameplayService.hpp"
 
 #include <iostream>
@@ -157,7 +159,7 @@ bool TestCommandsQueuedDuringDispatchWaitForTheNextFlush()
 }
 } // namespace
 
-int main()
+int main(int, char**)
 {
     bool success = true;
     success = TestRegisteredCommandRoutesToStructuredEvent() && success;

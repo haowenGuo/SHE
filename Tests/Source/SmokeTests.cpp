@@ -1,3 +1,5 @@
+#include <SDL3/SDL_main.h>
+
 #include "SHE/AI/AuthoringAiService.hpp"
 #include "SHE/Assets/AssetManager.hpp"
 #include "SHE/Audio/NullAudioService.hpp"
@@ -6,7 +8,7 @@
 #include "SHE/Diagnostics/DiagnosticsService.hpp"
 #include "SHE/Gameplay/GameplayService.hpp"
 #include "SHE/Physics/NullPhysicsService.hpp"
-#include "SHE/Platform/NullWindowService.hpp"
+#include "SHE/Platform/SdlWindowService.hpp"
 #include "SHE/Reflection/ReflectionService.hpp"
 #include "SHE/Renderer/NullRendererService.hpp"
 #include "SHE/Scene/SceneWorld.hpp"
@@ -209,7 +211,7 @@ public:
 she::RuntimeServices CreateTestRuntime()
 {
     she::RuntimeServices services;
-    services.window = std::make_shared<she::NullWindowService>();
+    services.window = std::make_shared<she::SdlWindowService>();
     services.assets = std::make_shared<she::AssetManager>();
     services.scene = std::make_shared<she::SceneWorld>();
     services.reflection = std::make_shared<she::ReflectionService>();
@@ -233,11 +235,12 @@ she::RuntimeServices CreateTestRuntime()
 }
 } // namespace
 
-int main()
+int main(int, char**)
 {
     she::ApplicationConfig config;
     config.applicationName = "SHE Smoke Tests";
     config.maxFrames = 3;
+    config.startWindowHidden = true;
 
     she::RuntimeServices services = CreateTestRuntime();
     services.ai->SetAuthoringIntent("Smoke test the AI-native runtime stack.");

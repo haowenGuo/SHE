@@ -14,8 +14,20 @@ namespace
 {
 std::string BuildPlatformSummary(RuntimeServices& services)
 {
+    const WindowState windowState = services.window->GetWindowState();
+    const PointerState pointerState = services.window->GetPointerState();
+
     std::ostringstream stream;
-    stream << "window_events_pumped=true\n";
+    stream << "window_events_pumped=" << services.window->GetPumpCount() << '\n';
+    stream << "window_id=" << windowState.windowId << '\n';
+    stream << "window_size=" << windowState.width << 'x' << windowState.height << '\n';
+    stream << "window_has_keyboard_focus=" << (windowState.hasKeyboardFocus ? "true" : "false") << '\n';
+    stream << "window_has_mouse_focus=" << (windowState.hasMouseFocus ? "true" : "false") << '\n';
+    stream << "window_minimized=" << (windowState.minimized ? "true" : "false") << '\n';
+    stream << "window_resized_this_frame=" << (windowState.resizedThisFrame ? "true" : "false") << '\n';
+    stream << "pointer_position=" << pointerState.x << ',' << pointerState.y << '\n';
+    stream << "pointer_delta=" << pointerState.deltaX << ',' << pointerState.deltaY << '\n';
+    stream << "pointer_wheel=" << pointerState.wheelX << ',' << pointerState.wheelY << '\n';
     stream << "window_should_close=" << (services.window->ShouldClose() ? "true" : "false");
     return stream.str();
 }
