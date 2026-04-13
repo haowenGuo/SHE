@@ -34,7 +34,7 @@ she::RuntimeServices CreateSandboxRuntime()
     services.physics = std::make_shared<she::Box2DPhysicsService>(services.scene, services.gameplay);
     services.audio = std::make_shared<she::MiniaudioAudioService>(services.assets, services.gameplay);
     services.ui = std::make_shared<she::NullUiService>();
-    services.scripting = std::make_shared<she::ScriptingService>();
+    services.scripting = std::make_shared<she::ScriptingService>(services.gameplay);
     services.diagnostics = std::make_shared<she::DiagnosticsService>();
     services.ai = std::make_shared<she::AuthoringAiService>(
         services.reflection,

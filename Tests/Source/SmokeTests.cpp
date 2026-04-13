@@ -203,13 +203,51 @@ public:
         encounterLoadParsed = encounterLoadResult.parsed;
         encounterLoadValid = encounterLoadResult.valid;
         encounterIssueCount = encounterLoadResult.issues.size();
-        services.scripting->RegisterScriptModule(
-            "tests.smoke.module",
-            "Placeholder module registered by the smoke test.");
+        services.scripting->RegisterBinding(
+            {"gameplay.queue_command", "GameplayService", "Allow script entry points to route through gameplay commands."});
+        services.scripting->RegisterBinding(
+            {"data.describe_registry", "DataService", "Expose the stable data registry summary as read-only script context."});
         services.gameplay->RegisterCommand(
             {"SmokeTestCommand", "Routes the smoke test command through the gameplay event bus.", "tests", "SmokeCommandRequested"});
         services.gameplay->RegisterCommand(
             {"SmokeFrameCommand", "Confirms per-frame command routing remains visible in diagnostics.", "tests", "SmokeFrameRequested"});
+        services.gameplay->RegisterCommand(
+            {"SmokeScriptCommand", "Verifies that script functions route into the gameplay command registry.", "tests", "SmokeScriptRequested"});
+        scriptSubscriptionId = services.gameplay->SubscribeToEvent(
+            "tests",
+            "SmokeScriptRequested",
+            [this](const she::GameplayEvent& event)
+            {
+                ++observedScriptCommandCount;
+                lastObservedScriptPayload = event.payload;
+            });
+        services.scripting->RegisterScriptModule(
+            she::ScriptModuleContract{
+                "tests.smoke.module",
+                "Tests/Source/Scripts/tests_smoke_module.lua",
+                "lua",
+                "Tests/Source",
+                "Smoke-test script module that validates the stable host boundary.",
+                true,
+                {"gameplay.queue_command", "data.describe_registry"},
+                {
+                    she::ScriptFunctionContract{
+                        "emit_smoke_command",
+                        "Route a smoke-test gameplay command through the scripting host.",
+                        "SmokeScriptCommand"},
+                }});
+        const she::ScriptModuleLoadResult scriptLoadResult = services.scripting->LoadScriptModule("tests.smoke.module");
+        observedScriptBindingCountAfterAttach = services.scripting->GetBindingCount();
+        observedScriptModuleCountAfterAttach = services.scripting->GetModuleCount();
+        observedLoadedScriptModuleCountAfterAttach = services.scripting->GetLoadedModuleCount();
+        scriptModuleLoadedAfterAttach = scriptLoadResult.loaded;
+        const she::ScriptInvocationResult scriptInvokeResult = services.scripting->InvokeScriptFunction(
+            "tests.smoke.module",
+            "emit_smoke_command",
+            "payload=script");
+        scriptInvocationAcceptedAfterAttach = scriptInvokeResult.accepted;
+        scriptInvocationQueuedCommandAfterAttach =
+            scriptInvokeResult.queuedGameplayCommand && scriptInvokeResult.queuedCommandName == "SmokeScriptCommand";
         services.gameplay->CreateTimer("tests.smoke.timer", 0.05, false);
         services.gameplay->QueueCommand("SmokeTestCommand", "payload=ok");
 
@@ -290,10 +328,18 @@ public:
     void OnDetach(she::RuntimeServices& services) override
     {
         ++detachCount;
+        if (scriptSubscriptionId != 0)
+        {
+            services.gameplay->UnsubscribeFromEvent(scriptSubscriptionId);
+            scriptSubscriptionId = 0;
+        }
+
         aiContextVersion = services.ai->GetContextVersion();
         aiContext = services.ai->ExportAuthoringContext();
         aiContextLength = aiContext.size();
         latestDiagnosticsReport = services.diagnostics->BuildLatestReport();
+        scriptCatalog = services.scripting->BuildScriptCatalog();
+        observedLoadedScriptModuleCount = services.scripting->GetLoadedModuleCount();
         observedSchemaCount = services.data->ListSchemas().size();
         observedRecordCount = services.data->GetRecordCount();
         observedTrustedRecordCount = services.data->GetTrustedRecordCount();
@@ -313,16 +359,22 @@ public:
     she::AssetId playerTextureAssetId = she::kInvalidAssetId;
     she::EntityId playerEntityId = she::kInvalidEntityId;
     she::EntityId cameraEntityId = she::kInvalidEntityId;
+    std::size_t scriptSubscriptionId = 0;
     std::size_t liveHandleCountDuringAttach = 0;
     std::size_t liveHandleCountAfterRelease = 0;
     std::size_t liveTextureHandleCountDuringRender = 0;
     std::size_t liveTextureHandleCountAfterRender = 0;
+    std::size_t observedScriptBindingCountAfterAttach = 0;
+    std::size_t observedScriptModuleCountAfterAttach = 0;
+    std::size_t observedLoadedScriptModuleCountAfterAttach = 0;
+    std::size_t observedLoadedScriptModuleCount = 0;
     std::size_t observedSchemaCountAfterAttach = 0;
     std::size_t observedRecordCountAfterAttach = 0;
     std::size_t observedTrustedRecordCountAfterAttach = 0;
     std::size_t observedSchemaCount = 0;
     std::size_t observedRecordCount = 0;
     std::size_t observedTrustedRecordCount = 0;
+    std::size_t observedScriptCommandCount = 0;
     bool schemasAcceptedAfterAttach = false;
     bool hasFeatureSchemaAfterAttach = false;
     bool hasEncounterSchemaAfterAttach = false;
@@ -347,9 +399,14 @@ public:
     bool featureLoadValid = false;
     bool encounterLoadParsed = false;
     bool encounterLoadValid = false;
+    bool scriptModuleLoadedAfterAttach = false;
+    bool scriptInvocationAcceptedAfterAttach = false;
+    bool scriptInvocationQueuedCommandAfterAttach = false;
     std::size_t encounterIssueCount = 0;
     std::string rendererBackendName;
+    std::string lastObservedScriptPayload;
     std::string aiContext;
+    std::string scriptCatalog;
     std::string latestDiagnosticsReport;
     std::optional<she::RenderFrameSnapshot> lastCompletedRenderFrame;
 };
@@ -369,7 +426,7 @@ she::RuntimeServices CreateTestRuntime()
     audioOptions.preferPlaybackDevice = false;
     services.audio = std::make_shared<she::MiniaudioAudioService>(services.assets, services.gameplay, audioOptions);
     services.ui = std::make_shared<she::NullUiService>();
-    services.scripting = std::make_shared<she::ScriptingService>();
+    services.scripting = std::make_shared<she::ScriptingService>(services.gameplay);
     services.diagnostics = std::make_shared<she::DiagnosticsService>();
     services.ai = std::make_shared<she::AuthoringAiService>(
         services.reflection,
@@ -531,6 +588,28 @@ int main(int, char**)
         return 1;
     }
 
+    if (layerPtr->observedScriptBindingCountAfterAttach != 2 || layerPtr->observedScriptModuleCountAfterAttach != 1 ||
+        layerPtr->observedLoadedScriptModuleCountAfterAttach != 1 || layerPtr->observedLoadedScriptModuleCount != 1 ||
+        !layerPtr->scriptModuleLoadedAfterAttach || !layerPtr->scriptInvocationAcceptedAfterAttach ||
+        !layerPtr->scriptInvocationQueuedCommandAfterAttach || layerPtr->observedScriptCommandCount == 0 ||
+        layerPtr->lastObservedScriptPayload != "payload=script")
+    {
+        std::cerr << "Scripting host did not preserve the expected binding/load/invocation contract.\n";
+        std::cerr << "Observed binding count after attach: " << layerPtr->observedScriptBindingCountAfterAttach << '\n';
+        std::cerr << "Observed module count after attach: " << layerPtr->observedScriptModuleCountAfterAttach << '\n';
+        std::cerr << "Observed loaded modules after attach: " << layerPtr->observedLoadedScriptModuleCountAfterAttach << '\n';
+        std::cerr << "Observed loaded modules on detach: " << layerPtr->observedLoadedScriptModuleCount << '\n';
+        std::cerr << "Script module loaded after attach: "
+                  << (layerPtr->scriptModuleLoadedAfterAttach ? "true" : "false") << '\n';
+        std::cerr << "Script invocation accepted after attach: "
+                  << (layerPtr->scriptInvocationAcceptedAfterAttach ? "true" : "false") << '\n';
+        std::cerr << "Script invocation queued command after attach: "
+                  << (layerPtr->scriptInvocationQueuedCommandAfterAttach ? "true" : "false") << '\n';
+        std::cerr << "Observed script command count: " << layerPtr->observedScriptCommandCount << '\n';
+        std::cerr << "Last observed script payload: " << layerPtr->lastObservedScriptPayload << '\n';
+        return 1;
+    }
+
     if (layerPtr->aiContextVersion < 1 || layerPtr->aiContextLength == 0)
     {
         std::cerr << "AI authoring context export was unexpectedly empty.\n";
@@ -557,6 +636,23 @@ int main(int, char**)
         return 1;
     }
 
+    const auto missingScriptCatalogNeedles = CollectMissingNeedles(
+        layerPtr->scriptCatalog,
+        {"script_host_contract_version: 1",
+         "binding_count: 2",
+         "loaded_modules: 1",
+         "module_name: tests.smoke.module",
+         "source_path: Tests/Source/Scripts/tests_smoke_module.lua",
+         "function_name: emit_smoke_command",
+         "routed_command_name: SmokeScriptCommand",
+         "queued_gameplay_command: true"});
+    if (!missingScriptCatalogNeedles.empty())
+    {
+        std::cerr << "Script catalog is missing expected stable host details.\n";
+        PrintMissingNeedles(missingScriptCatalogNeedles);
+        return 1;
+    }
+
     const auto missingAiContextNeedles = CollectMissingNeedles(
         layerPtr->aiContext,
         {"authoring_context_contract_version: 1",
@@ -571,12 +667,17 @@ int main(int, char**)
          "registered_schemas: 2",
          "data_records: 2",
          "trusted_data_records: 1",
+         "registered_script_bindings: 2",
+         "registered_script_modules: 1",
+         "loaded_script_modules: 1",
          "[data_registry]",
          "data_registry_version: 1",
          "record_count: 2",
          "trusted_record_count: 1",
          "tests.smoke.encounter.alpha",
          "[gameplay_state]",
+         "tests.smoke.module",
+         "SmokeScriptCommand",
          "[latest_frame_report]"});
     if (!missingAiContextNeedles.empty())
     {

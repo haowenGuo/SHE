@@ -305,7 +305,9 @@ void AuthoringAiService::RefreshContext(const FrameIndex frameIndex)
     stream << "registered_schemas: " << m_data->GetSchemaCount() << '\n';
     stream << "data_records: " << m_data->GetRecordCount() << '\n';
     stream << "trusted_data_records: " << m_data->GetTrustedRecordCount() << '\n';
+    stream << "registered_script_bindings: " << m_scripting->GetBindingCount() << '\n';
     stream << "registered_script_modules: " << m_scripting->GetModuleCount() << '\n';
+    stream << "loaded_script_modules: " << m_scripting->GetLoadedModuleCount() << '\n';
     stream << "captured_diagnostic_frames: " << m_diagnostics->GetCapturedFrameCount() << '\n';
 
     AppendContentSection(stream, "reflection_catalog", reflectionCatalog);

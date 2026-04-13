@@ -30,8 +30,15 @@ void SandboxLayer::OnAttach(RuntimeServices& services)
                 DataSchemaFieldContract{"layout", "map", false, "Optional layout metadata for the panel."},
             }});
     services.scripting->RegisterScriptModule(
-        "sandbox.debug_tools",
-        "Future Lua module for toggling debug panels and probes.");
+        ScriptModuleContract{
+            "sandbox.debug_tools",
+            "Tools/Sandbox/Scripts/debug_tools.lua",
+            "lua",
+            "Tools/Sandbox",
+            "Future Lua module for toggling debug panels and probes.",
+            false,
+            {},
+            {}});
     services.gameplay->QueueEvent("sandbox", "Attached", "Sandbox registered debug contracts.");
 
     SHE_LOG_INFO("Sandbox", "Sandbox layer attached.");

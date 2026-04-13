@@ -100,3 +100,32 @@ target_link_libraries(
 she_configure_target(she_audio_contract_tests)
 
 add_test(NAME she_audio_contract_tests COMMAND she_audio_contract_tests)
+
+add_executable(
+    she_scripting_host_tests
+    Source/ScriptingHostTests.cpp
+)
+
+target_link_libraries(
+    she_scripting_host_tests
+    PRIVATE
+        she_engine
+)
+she_configure_target(she_scripting_host_tests)
+
+add_test(NAME she_scripting_host_tests COMMAND she_scripting_host_tests)
+
+add_executable(
+    she_bootstrap_script_tests
+    Source/BootstrapScriptRegistrationTests.cpp
+)
+
+target_link_libraries(
+    she_bootstrap_script_tests
+    PRIVATE
+        she_gameplay
+        she_engine
+)
+she_configure_target(she_bootstrap_script_tests)
+
+add_test(NAME she_bootstrap_script_tests COMMAND she_bootstrap_script_tests)

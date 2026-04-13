@@ -5,6 +5,21 @@
 
 namespace she
 {
+namespace
+{
+constexpr std::string_view kBootstrapSpawnModuleName = "bootstrap.spawn_rules";
+
+std::string BuildSpawnPayload(const bool fromTimer)
+{
+    if (fromTimer)
+    {
+        return "encounter=bootstrap_room_a; enemy=training_dummy; count=1; trigger=spawn_pulse";
+    }
+
+    return "encounter=bootstrap_room_a; enemy=training_dummy; count=1; trigger=bootstrap_intro";
+}
+} // namespace
+
 BootstrapFeatureLayer::BootstrapFeatureLayer() : Layer("BootstrapFeatureLayer")
 {
 }
@@ -102,9 +117,30 @@ void BootstrapFeatureLayer::OnAttach(RuntimeServices& services)
                 DataSchemaFieldContract{"notes", "scalar", false, "Optional designer-facing notes."},
             }});
 
+    services.scripting->RegisterBinding({
+        "gameplay.queue_command",
+        "GameplayService",
+        "Route script-authored actions through the stable gameplay command path."});
+    services.scripting->RegisterBinding({
+        "data.describe_registry",
+        "DataService",
+        "Allow scripts to reason about the trusted authored data catalog without bypassing IDataService."});
+
     services.scripting->RegisterScriptModule(
-        "bootstrap.spawn_rules",
-        "Future Lua module for spawn pacing and wave customization.");
+        ScriptModuleContract{
+            std::string(kBootstrapSpawnModuleName),
+            "Game/Features/Bootstrap/Scripts/spawn_rules.lua",
+            "lua",
+            "Game/Features/Bootstrap",
+            "Bootstrap spawn pacing hooks authored against the stable scripting host contract.",
+            true,
+            {"gameplay.queue_command", "data.describe_registry"},
+            {
+                ScriptFunctionContract{
+                    "request_spawn",
+                    "Translate bootstrap spawn rules into the shared SpawnEncounter gameplay command.",
+                    "SpawnEncounter"},
+            }});
 
     services.gameplay->RegisterCommand({
         "SpawnEncounter",
@@ -112,6 +148,13 @@ void BootstrapFeatureLayer::OnAttach(RuntimeServices& services)
         "encounter",
         "SpawnRequested",
     });
+
+    const ScriptModuleLoadResult loadResult = services.scripting->LoadScriptModule(kBootstrapSpawnModuleName);
+    m_spawnRulesLoaded = loadResult.loaded;
+    if (!m_spawnRulesLoaded)
+    {
+        SHE_LOG_WARNING("Game", "Bootstrap spawn rules module did not load through the scripting host.");
+    }
 
     m_timerSubscriptionId = services.gameplay->SubscribeToEvent(
         "timer",
@@ -175,12 +218,19 @@ void BootstrapFeatureLayer::OnAttach(RuntimeServices& services)
 
 void BootstrapFeatureLayer::OnFixedUpdate(const TickContext& context)
 {
-    if (!m_queuedFirstSpawnCommand)
+    if (!m_spawnRulesLoaded || m_queuedFirstSpawnCommand)
     {
-        m_queuedFirstSpawnCommand = true;
-        context.services.gameplay->QueueCommand(
-            "SpawnEncounter",
-            "encounter=bootstrap_room_a; enemy=training_dummy; count=1");
+        return;
+    }
+
+    m_queuedFirstSpawnCommand = true;
+    const ScriptInvocationResult result = context.services.scripting->InvokeScriptFunction(
+        kBootstrapSpawnModuleName,
+        "request_spawn",
+        BuildSpawnPayload(false));
+    if (!result.accepted)
+    {
+        SHE_LOG_WARNING("Game", "Bootstrap intro spawn could not be routed through the scripting host.");
     }
 }
 
@@ -207,9 +257,14 @@ void BootstrapFeatureLayer::OnUpdate(const TickContext& context)
     if (m_observedSpawnPulseCount > m_handledSpawnPulseCount)
     {
         m_handledSpawnPulseCount = m_observedSpawnPulseCount;
-        context.services.gameplay->QueueCommand(
-            "SpawnEncounter",
-            "encounter=bootstrap_room_a; enemy=training_dummy; count=1; trigger=spawn_pulse");
+        const ScriptInvocationResult result = context.services.scripting->InvokeScriptFunction(
+            kBootstrapSpawnModuleName,
+            "request_spawn",
+            BuildSpawnPayload(true));
+        if (!result.accepted)
+        {
+            SHE_LOG_WARNING("Game", "Bootstrap timer-driven spawn could not be routed through the scripting host.");
+        }
     }
 }
 
@@ -258,6 +313,8 @@ void BootstrapFeatureLayer::OnDetach(RuntimeServices& services)
         services.gameplay->UnsubscribeFromEvent(m_timerSubscriptionId);
         m_timerSubscriptionId = 0;
     }
+
+    m_spawnRulesLoaded = false;
 
     SHE_LOG_INFO("Game", "Bootstrap feature layer detached.");
 }

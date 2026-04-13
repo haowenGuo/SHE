@@ -584,6 +584,67 @@ public:
     virtual void EndFrame() = 0;
 };
 
+enum class ScriptModuleLoadState
+{
+    Registered,
+    Loaded,
+    Blocked
+};
+
+struct ScriptHostBindingDescriptor
+{
+    std::string bindingName;
+    std::string owningService;
+    std::string description;
+};
+
+struct ScriptFunctionContract
+{
+    std::string functionName;
+    std::string description;
+    std::string routedCommandName;
+};
+
+struct ScriptModuleContract
+{
+    std::string moduleName;
+    std::string sourcePath;
+    std::string language = "lua";
+    std::string owningFeature;
+    std::string description;
+    bool autoLoad = true;
+    std::vector<std::string> requiredBindings;
+    std::vector<ScriptFunctionContract> exportedFunctions;
+};
+
+struct ScriptModuleLoadResult
+{
+    std::string moduleName;
+    ScriptModuleLoadState state = ScriptModuleLoadState::Registered;
+    bool loaded = false;
+    std::vector<std::string> missingBindings;
+    std::string message;
+};
+
+struct ScriptInvocationResult
+{
+    std::string moduleName;
+    std::string functionName;
+    std::string payload;
+    bool accepted = false;
+    bool queuedGameplayCommand = false;
+    std::string queuedCommandName;
+    std::string message;
+};
+
+struct ScriptModuleCatalogEntry
+{
+    ScriptModuleContract contract;
+    ScriptModuleLoadState loadState = ScriptModuleLoadState::Registered;
+    std::size_t invocationCount = 0;
+    std::string lastStatusMessage;
+};
+
 class IScriptingService
 {
 public:
@@ -591,9 +652,21 @@ public:
 
     virtual void Initialize() = 0;
     virtual void Shutdown() = 0;
-    virtual void RegisterScriptModule(std::string moduleName, std::string description) = 0;
+    virtual void RegisterBinding(ScriptHostBindingDescriptor descriptor) = 0;
+    virtual void RegisterScriptModule(ScriptModuleContract module) = 0;
+    virtual bool HasBinding(std::string_view bindingName) const = 0;
+    virtual bool HasScriptModule(std::string_view moduleName) const = 0;
+    virtual ScriptModuleLoadResult LoadScriptModule(std::string_view moduleName) = 0;
+    virtual ScriptInvocationResult InvokeScriptFunction(
+        std::string_view moduleName,
+        std::string_view functionName,
+        std::string payload) = 0;
     virtual void Update(double deltaSeconds) = 0;
+    virtual std::size_t GetBindingCount() const = 0;
     virtual std::size_t GetModuleCount() const = 0;
+    virtual std::size_t GetLoadedModuleCount() const = 0;
+    virtual std::vector<ScriptHostBindingDescriptor> ListBindings() const = 0;
+    virtual std::vector<ScriptModuleCatalogEntry> ListModules() const = 0;
     virtual std::string BuildScriptCatalog() const = 0;
 };
 

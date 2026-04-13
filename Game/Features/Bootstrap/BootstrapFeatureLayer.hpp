@@ -27,6 +27,7 @@ private:
     std::size_t m_observedSpawnPulseCount = 0;
     std::size_t m_handledSpawnPulseCount = 0;
     bool m_loggedFeatureSummary = false;
+    bool m_spawnRulesLoaded = false;
     bool m_queuedFirstSpawnCommand = false;
 };
 } // namespace she
