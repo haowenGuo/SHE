@@ -1,0 +1,7 @@
+id: feature.roguelite.room.03
+theme: core_vault
+waves:
+  - double_brute
+  - suppressing_crossfire
+  - vault_break
+reward: vault_clear

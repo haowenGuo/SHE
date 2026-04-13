@@ -1,0 +1,5 @@
+id: feature.roguelite.enemy.shooter
+kind: shooter
+hit_points: 3
+move_speed: 1.6
+reward_scrap: 2

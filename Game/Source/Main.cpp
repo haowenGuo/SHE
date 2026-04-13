@@ -1,6 +1,6 @@
 #include <SDL3/SDL_main.h>
 
-#include "FallingBlocks/FallingBlocksFeatureLayer.hpp"
+#include "RogueLite/RogueLiteFeatureLayer.hpp"
 
 #include "SHE/AI/AuthoringAiService.hpp"
 #include "SHE/Assets/AssetManager.hpp"
@@ -60,11 +60,11 @@ she::RuntimeServices CreateBootstrapRuntime()
 int main(int, char**)
 {
     she::ApplicationConfig config;
-    config.applicationName = "SHE Falling Blocks";
+    config.applicationName = "SHE RogueLite";
     config.useDeterministicFrameTiming = false;
     config.maxFrames = 0;
 
     she::Application app(config, CreateBootstrapRuntime());
-    app.PushLayer(std::make_unique<she::FallingBlocksFeatureLayer>());
+    app.PushLayer(std::make_unique<she::RogueLiteFeatureLayer>());
     return app.Run();
 }

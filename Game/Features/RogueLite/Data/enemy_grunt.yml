@@ -1,0 +1,5 @@
+id: feature.roguelite.enemy.grunt
+kind: grunt
+hit_points: 2
+move_speed: 2.2
+reward_scrap: 1

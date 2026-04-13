@@ -1,0 +1,6 @@
+id: feature.roguelite.room.01
+theme: entry_gate
+waves:
+  - opening_line
+  - crossfire_check
+reward: upgrade_core

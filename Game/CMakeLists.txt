@@ -4,6 +4,8 @@ add_library(
         Features/Bootstrap/BootstrapFeatureLayer.cpp
         Features/FallingBlocks/FallingBlocksFeatureLayer.cpp
         Features/FallingBlocks/FallingBlocksGame.cpp
+        Features/RogueLite/RogueLiteFeatureLayer.cpp
+        Features/RogueLite/RogueLiteGame.cpp
         Features/VerticalSlice/VerticalSliceFeatureLayer.cpp
 )
 

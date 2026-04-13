@@ -1,0 +1,5 @@
+id: feature.roguelite.enemy.brute
+kind: brute
+hit_points: 5
+move_speed: 1.2
+reward_scrap: 3

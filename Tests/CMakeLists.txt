@@ -217,3 +217,47 @@ target_link_libraries(
 she_configure_target(she_falling_blocks_flow_tests)
 
 add_test(NAME she_falling_blocks_flow_tests COMMAND she_falling_blocks_flow_tests)
+
+add_executable(
+    she_roguelite_logic_tests
+    Source/RogueLiteLogicTests.cpp
+)
+
+target_link_libraries(
+    she_roguelite_logic_tests
+    PRIVATE
+        she_gameplay
+)
+she_configure_target(she_roguelite_logic_tests)
+
+add_test(NAME she_roguelite_logic_tests COMMAND she_roguelite_logic_tests)
+
+add_executable(
+    she_roguelite_smoke_tests
+    Source/RogueLiteSmokeTests.cpp
+)
+
+target_link_libraries(
+    she_roguelite_smoke_tests
+    PRIVATE
+        she_gameplay
+        she_engine
+)
+she_configure_target(she_roguelite_smoke_tests)
+
+add_test(NAME she_roguelite_smoke_tests COMMAND she_roguelite_smoke_tests)
+
+add_executable(
+    she_roguelite_flow_tests
+    Source/RogueLiteFlowTests.cpp
+)
+
+target_link_libraries(
+    she_roguelite_flow_tests
+    PRIVATE
+        she_gameplay
+        she_engine
+)
+she_configure_target(she_roguelite_flow_tests)
+
+add_test(NAME she_roguelite_flow_tests COMMAND she_roguelite_flow_tests)

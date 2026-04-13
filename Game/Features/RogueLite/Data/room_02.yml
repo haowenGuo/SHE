@@ -1,0 +1,6 @@
+id: feature.roguelite.room.02
+theme: relay_hall
+waves:
+  - twin_shooters
+  - brute_anchor
+reward: upgrade_core

@@ -1,0 +1,4 @@
+id: feature.roguelite.weapon.sidearm
+damage: 1
+fire_cooldown: 0.28
+projectile_speed: 10.5
