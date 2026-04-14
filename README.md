@@ -10,6 +10,7 @@ This repository is intentionally structured as a teaching-friendly codebase:
 - `Tests/` contains smoke tests for the bootstrap architecture.
 
 At this stage the project is a compileable architectural skeleton rather than a feature-complete engine. The goal of this first milestone is to make the ownership boundaries, module responsibilities, and development workflow obvious before complex rendering and physics code arrives.
+<img width="638" height="380" alt="image" src="https://github.com/user-attachments/assets/1d35fd57-b9eb-4bfa-bbd7-7e5e53403710" />
 
 ## Read This First
 
